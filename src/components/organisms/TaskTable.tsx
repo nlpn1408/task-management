@@ -162,7 +162,7 @@ const TaskTable: React.FC<TaskTableProps> = ({
         enableHiding: false,
       },
     ],
-    [onEdit, onDelete]
+    []
   );
 
   const table = useReactTable({
