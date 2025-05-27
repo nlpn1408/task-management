@@ -1,6 +1,6 @@
 import React, { createContext, useReducer, useContext } from "react";
-import type { ReactNode, Dispatch } from "react"; // Type-only imports
-import type { Task, TaskStatus } from "@/types"; // Type-only imports
+import type { ReactNode, Dispatch } from "react";
+import type { Task, TaskStatus } from "@/types";
 import moment from "moment";
 import type { TaskFormData } from "@/components/organisms/TaskForm";
 import { mockTasks } from "@/services/mockData";
@@ -10,9 +10,7 @@ const generateId = (): string => {
   return (nextMockId++).toString();
 };
 
-// Helper function to create a task code
 const createTaskCode = (taskId: string): string => {
-  // If ID is numeric, pad to ensure some length for substring
   const paddedId = taskId.padStart(6, "0");
   return `T-${paddedId.substring(0, 6).toUpperCase()}`;
 };
@@ -112,7 +110,6 @@ interface TaskContextType extends TaskState {
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
 
-// 6. Create Provider Component
 interface TaskProviderProps {
   children: ReactNode;
   initialMockTasks?: Task[];

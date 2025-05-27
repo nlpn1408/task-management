@@ -8,12 +8,11 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import type { DragEndEvent, DragStartEvent, Over } from "@dnd-kit/core";
-// import { arrayMove } from "@dnd-kit/sortable"; // Removed: No longer reordering within columns
 import { useTasks } from "@/contexts/TaskContext";
 import type { Task, TaskStatus } from "@/types";
 import { TASK_STATUSES } from "@/types";
 import KanbanColumn from "./KanbanColumn";
-import TaskItem from "./TaskItem";
+import KanbanTaskItem from "./KanbanTaskItem";
 
 interface KanbanBoardProps {
   tasks: Task[];
@@ -28,7 +27,7 @@ interface DndData {
 }
 
 const KanbanBoard: React.FC<KanbanBoardProps> = ({
-  tasks, // This is kanbanFilteredTasks from HomePage
+  tasks,
   onEditTask,
   onDeleteTask,
 }) => {
@@ -113,7 +112,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
       </div>
       <DragOverlay dropAnimation={null}>
         {activeTaskForOverlay ? (
-          <TaskItem task={activeTaskForOverlay} isDragging={true} />
+          <KanbanTaskItem task={activeTaskForOverlay} />
         ) : null}
       </DragOverlay>
     </DndContext>

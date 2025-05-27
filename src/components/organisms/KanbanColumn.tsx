@@ -1,9 +1,9 @@
 import React from "react";
 import type { Task, TaskStatus } from "@/types";
 import { useDroppable } from "@dnd-kit/core";
-import DraggableTaskItem from "./DraggableTaskItem";
 import { getStatusBadgeStyleProps } from "@/utils/styleUtils";
 import { Badge } from "../ui/badge";
+import KanbanTaskItem from "./KanbanTaskItem";
 
 interface KanbanColumnProps {
   status: TaskStatus;
@@ -45,7 +45,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
       <div className="space-y-3 overflow-y-auto flex-grow pr-1 min-h-[200px]">
         {tasks.length > 0 ? (
           tasks.map((task) => (
-            <DraggableTaskItem
+            <KanbanTaskItem
               key={task.id}
               task={task}
               onEdit={onEditTask}

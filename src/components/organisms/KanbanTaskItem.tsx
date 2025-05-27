@@ -3,26 +3,20 @@ import type { Task } from "@/types";
 import moment from "moment";
 import TaskActionsDropdown from "@/components/molecules/TaskActionsDropdown";
 import DeleteTaskDialog from "@/components/molecules/DeleteTaskDialog";
-import type { DndItemProps } from "@/types/dnd";
+import { useDraggable } from "@dnd-kit/core";
 
-interface TaskItemProps extends DndItemProps {
+interface KanbanTaskItemProps {
   task: Task;
   onEdit?: (task: Task) => void;
   onDelete?: (taskId: string) => void;
-  isDragging?: boolean;
 }
 
-const TaskItem: React.FC<TaskItemProps> = ({
-  task,
-  onEdit,
-  onDelete,
-  isDragging,
-  dndRef,
-  dndStyle,
-  dndAttributes,
-  dndListeners,
-}) => {
+const KanbanTaskItem: React.FC<KanbanTaskItemProps> = ({ task, onEdit, onDelete }) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: task.id,
+    data: { task, type: "TASK_ITEM", originalStatus: task.status },
+  });
 
   useEffect(() => {}, [task.id, onDelete]);
 
@@ -42,10 +36,9 @@ const TaskItem: React.FC<TaskItemProps> = ({
   return (
     <>
       <div
-        ref={dndRef}
-        style={dndStyle}
-        {...dndAttributes}
-        {...dndListeners}
+        ref={setNodeRef}
+        {...attributes}
+        {...listeners}
         className={`bg-card p-4 sm:p-6 rounded-lg border shadow-sm hover:shadow-md transition-shadow duration-150 flex flex-col touch-none  ${
           isDragging ? "opacity-75" : ""
         }`}
@@ -100,4 +93,4 @@ const TaskItem: React.FC<TaskItemProps> = ({
   );
 };
 
-export default TaskItem;
+export default KanbanTaskItem;

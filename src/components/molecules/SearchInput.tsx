@@ -1,8 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import Icon from "@/components/atoms/Icon";
 
-// Use React.ComponentProps to get props from the Shadcn Input component
 interface SearchInputProps
   extends Omit<React.ComponentProps<typeof Input>, "onChange" | "value"> {
   onSearchChange: (value: string) => void;
@@ -14,28 +13,17 @@ const SearchInput: React.FC<SearchInputProps> = ({
   onSearchChange,
   initialValue = "",
   placeholder = "Search...",
-  debounceTimeout = 300,
   className,
   ...props
 }) => {
-  const [searchTerm, setSearchTerm] = React.useState(initialValue);
+  const [searchTerm, setSearchTerm] = useState(initialValue);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setSearchTerm(initialValue);
   }, [initialValue]);
 
-  React.useEffect(() => {
-    const handler = setTimeout(() => {
-      onSearchChange(searchTerm);
-    }, debounceTimeout);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [searchTerm, onSearchChange, debounceTimeout]);
-
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
+    onSearchChange(event.target.value);
   };
 
   return (
