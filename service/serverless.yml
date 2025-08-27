@@ -1,0 +1,160 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: nlpnserverless
+service: task-manager-service
+
+frameworkVersion: '4'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: ap-southeast-1
+  stage: dev
+  httpApi:
+    cors: true
+    authorizers:
+      customAuthorizer:
+        type: request
+        functionName: customAuthorizer
+        name: customAuthorizer
+        resultTtlInSeconds: 0
+        enableSimpleResponses: true
+        payloadVersion: '2.0'
+        identitySource:
+          - $request.header.Authorization
+          - $request.header.authorization
+  environment:
+    TABLE_NAME: ${self:custom.tableName}
+    USER_POOL_ID: ap-southeast-1_4Fe9nw33I
+    CLIENT_ID: 4na95skm65bele9e295ej6q7u5
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+            - dynamodb:Scan
+            - dynamodb:Query
+          Resource:
+            - "arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:custom.tableName}"
+            - "arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:custom.tableName}/index/status-index"
+
+custom:
+  tableName: 'todos-table'
+
+plugins:
+  - serverless-offline
+
+functions:
+  customAuthorizer:
+    handler: src/authorizer.handler
+    role: AuthorizerRole
+
+  createTodo:
+    handler: src/controllers/todoController.createTodo
+    events:
+      - httpApi:
+          path: /todos
+          method: post
+          authorizer:
+            name: customAuthorizer
+
+  listTodos:
+    handler: src/controllers/todoController.listTodos
+    events:
+      - httpApi:
+          path: /todos
+          method: get
+          authorizer:
+            name: customAuthorizer
+
+  getTodo:
+    handler: src/controllers/todoController.getTodo
+    events:
+      - httpApi:
+          path: /todos/{id}
+          method: get
+          authorizer:
+            name: customAuthorizer
+
+  updateTodo:
+    handler: src/controllers/todoController.updateTodo
+    events:
+      - httpApi:
+          path: /todos/{id}
+          method: put
+          authorizer:
+            name: customAuthorizer
+
+  deleteTodo:
+    handler: src/controllers/todoController.deleteTodo
+    events:
+      - httpApi:
+          path: /todos/{id}
+          method: delete
+          authorizer:
+            name: customAuthorizer
+
+  listTodosByStatus:
+    handler: src/controllers/todoController.listTodosByStatus
+    events:
+      - httpApi:
+          path: /todos/by-status/{status}
+          method: get
+          authorizer:
+            name: customAuthorizer
+
+resources:
+  Resources:
+    AuthorizerRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: ${self:service}-${self:provider.stage}-authorizer-role
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: AuthorizerPolicy
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - logs:CreateLogGroup
+                    - logs:CreateLogStream
+                    - logs:PutLogEvents
+                  Resource:
+                    - 'arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/aws/lambda/*:*:*'
+
+    TodosTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: ${self:custom.tableName}
+        AttributeDefinitions:
+          - AttributeName: 'id'
+            AttributeType: 'S'
+          - AttributeName: 'status'
+            AttributeType: 'S'
+        KeySchema:
+          - AttributeName: 'id'
+            KeyType: 'HASH'
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        GlobalSecondaryIndexes:
+          - IndexName: 'status-index'
+            KeySchema:
+              - AttributeName: 'status'
+                KeyType: 'HASH'
+            Projection:
+              ProjectionType: 'ALL'
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1

@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "es2016",
+    "module": "commonjs",
+    "outDir": "./dist" /* Thư mục đầu ra cho mã đã biên dịch. */,
+    "rootDir": "./src" /* Thư mục gốc chứa mã nguồn. */,
+    "strict": true /* Bật tất cả các tùy chọn kiểm tra kiểu nghiêm ngặt. */,
+    "esModuleInterop": true /* Cho phép nhập mô-đun CommonJS dưới dạng mô-đun ES. */,
+    "skipLibCheck": true /* Bỏ qua việc kiểm tra kiểu của các file thư viện. */,
+    "forceConsistentCasingInFileNames": true
+  }
+}

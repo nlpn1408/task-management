@@ -1,0 +1,41 @@
+{
+  "name": "task-manager-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "deploy": "serverless deploy",
+    "seed": "node seed-data.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.873.0",
+    "@aws-sdk/lib-dynamodb": "^3.873.0",
+    "aws-jwt-verify": "^5.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "serverless": "^4.18.1",
+    "uuid": "^11.1.0"
+  },
+  "serverless": {
+    "service": "task-manager-service",
+    "app": "task-manager-app-service"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.152",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.3.0",
+    "serverless-offline": "^14.4.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.9.2"
+  }
+}

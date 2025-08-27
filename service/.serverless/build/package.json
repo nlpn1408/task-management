@@ -1,0 +1,23 @@
+{
+  "name": "task-manager-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "deploy": "serverless deploy",
+    "seed": "node seed-data.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {},
+  "serverless": {
+    "service": "task-manager-service",
+    "app": "task-manager-app-service"
+  }
+}

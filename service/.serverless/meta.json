@@ -1,0 +1,4103 @@
+{
+  "C:\\My Folder\\New folder\\task-manager-service\\serverless.yml": {
+    "versionFramework": "4.18.2",
+    "servicePath": "C:\\My Folder\\New folder\\task-manager-service\\serverless.yml",
+    "serviceConfigFileName": "serverless.yml",
+    "service": {
+      "org": "nlpnserverless",
+      "service": "task-manager-service",
+      "frameworkVersion": "4",
+      "provider": {
+        "name": "aws",
+        "runtime": "nodejs18.x",
+        "region": "ap-southeast-1",
+        "stage": "dev",
+        "httpApi": {
+          "cors": true,
+          "authorizers": {
+            "customAuthorizer": {
+              "type": "request",
+              "functionName": "customAuthorizer",
+              "name": "customAuthorizer",
+              "resultTtlInSeconds": 0,
+              "enableSimpleResponses": true,
+              "payloadVersion": "2.0",
+              "identitySource": [
+                "$request.header.Authorization",
+                "$request.header.authorization"
+              ]
+            }
+          }
+        },
+        "environment": {
+          "TABLE_NAME": "todos-table",
+          "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
+          "CLIENT_ID": "4na95skm65bele9e295ej6q7u5"
+        },
+        "iam": {
+          "role": {
+            "statements": [
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "dynamodb:GetItem",
+                  "dynamodb:PutItem",
+                  "dynamodb:UpdateItem",
+                  "dynamodb:DeleteItem",
+                  "dynamodb:Scan",
+                  "dynamodb:Query"
+                ],
+                "Resource": [
+                  "arn:aws:dynamodb:ap-southeast-1:476114140816:table/todos-table",
+                  "arn:aws:dynamodb:ap-southeast-1:476114140816:table/todos-table/index/status-index"
+                ]
+              }
+            ]
+          }
+        },
+        "versionFunctions": true,
+        "compiledCloudFormationTemplate": {
+          "AWSTemplateFormatVersion": "2010-09-09",
+          "Description": "The AWS CloudFormation template for this Serverless application",
+          "Resources": {
+            "CustomAuthorizerLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/task-manager-service-dev-customAuthorizer"
+              }
+            },
+            "CreateTodoLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/task-manager-service-dev-createTodo"
+              }
+            },
+            "ListTodosLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/task-manager-service-dev-listTodos"
+              }
+            },
+            "GetTodoLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/task-manager-service-dev-getTodo"
+              }
+            },
+            "UpdateTodoLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/task-manager-service-dev-updateTodo"
+              }
+            },
+            "DeleteTodoLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/task-manager-service-dev-deleteTodo"
+              }
+            },
+            "ListTodosByStatusLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/task-manager-service-dev-listTodosByStatus"
+              }
+            },
+            "IamRoleLambdaExecution": {
+              "Type": "AWS::IAM::Role",
+              "Properties": {
+                "AssumeRolePolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Principal": {
+                        "Service": [
+                          "lambda.amazonaws.com"
+                        ]
+                      },
+                      "Action": [
+                        "sts:AssumeRole"
+                      ]
+                    }
+                  ]
+                },
+                "Policies": [
+                  {
+                    "PolicyName": {
+                      "Fn::Join": [
+                        "-",
+                        [
+                          "task-manager-service",
+                          "dev",
+                          "lambda"
+                        ]
+                      ]
+                    },
+                    "PolicyDocument": {
+                      "Version": "2012-10-17",
+                      "Statement": [
+                        {
+                          "Effect": "Allow",
+                          "Action": [
+                            "logs:CreateLogStream",
+                            "logs:CreateLogGroup",
+                            "logs:TagResource"
+                          ],
+                          "Resource": [
+                            {
+                              "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/task-manager-service-dev*:*"
+                            }
+                          ]
+                        },
+                        {
+                          "Effect": "Allow",
+                          "Action": [
+                            "logs:PutLogEvents"
+                          ],
+                          "Resource": [
+                            {
+                              "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/task-manager-service-dev*:*:*"
+                            }
+                          ]
+                        },
+                        {
+                          "Effect": "Allow",
+                          "Action": [
+                            "dynamodb:GetItem",
+                            "dynamodb:PutItem",
+                            "dynamodb:UpdateItem",
+                            "dynamodb:DeleteItem",
+                            "dynamodb:Scan",
+                            "dynamodb:Query"
+                          ],
+                          "Resource": [
+                            "arn:aws:dynamodb:ap-southeast-1:476114140816:table/todos-table",
+                            "arn:aws:dynamodb:ap-southeast-1:476114140816:table/todos-table/index/status-index"
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "Path": "/",
+                "RoleName": {
+                  "Fn::Join": [
+                    "-",
+                    [
+                      "task-manager-service",
+                      "dev",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      "lambdaRole"
+                    ]
+                  ]
+                }
+              }
+            },
+            "CustomAuthorizerLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+                  "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+                },
+                "Handler": "src/authorizer.handler",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "task-manager-service-dev-customAuthorizer",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Environment": {
+                  "Variables": {
+                    "TABLE_NAME": "todos-table",
+                    "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
+                    "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                    "NODE_OPTIONS": "--enable-source-maps"
+                  }
+                },
+                "Role": {
+                  "Fn::GetAtt": [
+                    "AuthorizerRole",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "CustomAuthorizerLogGroup",
+                "AuthorizerRole"
+              ]
+            },
+            "CreateTodoLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+                  "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+                },
+                "Handler": "src/controllers/todoController.createTodo",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "task-manager-service-dev-createTodo",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Environment": {
+                  "Variables": {
+                    "TABLE_NAME": "todos-table",
+                    "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
+                    "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                    "NODE_OPTIONS": "--enable-source-maps"
+                  }
+                },
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "CreateTodoLogGroup"
+              ]
+            },
+            "ListTodosLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+                  "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+                },
+                "Handler": "src/controllers/todoController.listTodos",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "task-manager-service-dev-listTodos",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Environment": {
+                  "Variables": {
+                    "TABLE_NAME": "todos-table",
+                    "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
+                    "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                    "NODE_OPTIONS": "--enable-source-maps"
+                  }
+                },
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "ListTodosLogGroup"
+              ]
+            },
+            "GetTodoLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+                  "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+                },
+                "Handler": "src/controllers/todoController.getTodo",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "task-manager-service-dev-getTodo",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Environment": {
+                  "Variables": {
+                    "TABLE_NAME": "todos-table",
+                    "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
+                    "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                    "NODE_OPTIONS": "--enable-source-maps"
+                  }
+                },
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "GetTodoLogGroup"
+              ]
+            },
+            "UpdateTodoLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+                  "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+                },
+                "Handler": "src/controllers/todoController.updateTodo",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "task-manager-service-dev-updateTodo",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Environment": {
+                  "Variables": {
+                    "TABLE_NAME": "todos-table",
+                    "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
+                    "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                    "NODE_OPTIONS": "--enable-source-maps"
+                  }
+                },
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "UpdateTodoLogGroup"
+              ]
+            },
+            "DeleteTodoLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+                  "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+                },
+                "Handler": "src/controllers/todoController.deleteTodo",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "task-manager-service-dev-deleteTodo",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Environment": {
+                  "Variables": {
+                    "TABLE_NAME": "todos-table",
+                    "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
+                    "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                    "NODE_OPTIONS": "--enable-source-maps"
+                  }
+                },
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "DeleteTodoLogGroup"
+              ]
+            },
+            "ListTodosByStatusLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+                  "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+                },
+                "Handler": "src/controllers/todoController.listTodosByStatus",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "task-manager-service-dev-listTodosByStatus",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Environment": {
+                  "Variables": {
+                    "TABLE_NAME": "todos-table",
+                    "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
+                    "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                    "NODE_OPTIONS": "--enable-source-maps"
+                  }
+                },
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "ListTodosByStatusLogGroup"
+              ]
+            },
+            "CustomAuthorizerLambdaVersionODfRHskM6mSmqlTyRrd6jMikICaMW5IlKtoZEnQE": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "CustomAuthorizerLambdaFunction"
+                },
+                "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+              }
+            },
+            "CreateTodoLambdaVersionU0YuQ8gh9iu3qEmYb8EwjTWOOm8APBXCfunogKHg": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "CreateTodoLambdaFunction"
+                },
+                "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+              }
+            },
+            "ListTodosLambdaVersionChAHaUdO0iO26y0KJCGkQTOz5bvOER7Bl3p5QFnzk": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "ListTodosLambdaFunction"
+                },
+                "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+              }
+            },
+            "GetTodoLambdaVersioneSmRYfW1tPy1Ftc9nAKUXBZfklXFkEfnAK1RMFBEIU": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "GetTodoLambdaFunction"
+                },
+                "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+              }
+            },
+            "UpdateTodoLambdaVersionaHvXiE4SpheXnEE3Zhk2ZlIJYuDkMoxKYGGIWufic": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "UpdateTodoLambdaFunction"
+                },
+                "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+              }
+            },
+            "DeleteTodoLambdaVersionFpis6CnBW764xaZpl2p7vMMYP68kWeWbHjPjt6P6e8": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "DeleteTodoLambdaFunction"
+                },
+                "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+              }
+            },
+            "ListTodosByStatusLambdaVersionNYXiZflIQ66OmuY9yF7OBVCWfvlTAbbhGv6Cp3pNTs": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "ListTodosByStatusLambdaFunction"
+                },
+                "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+              }
+            },
+            "HttpApi": {
+              "Type": "AWS::ApiGatewayV2::Api",
+              "Properties": {
+                "Name": "dev-task-manager-service",
+                "ProtocolType": "HTTP",
+                "CorsConfiguration": {
+                  "AllowCredentials": "<REDACTED>",
+                  "AllowHeaders": [
+                    "Content-Type",
+                    "X-Amz-Date",
+                    "Authorization",
+                    "X-Api-Key",
+                    "X-Amz-Security-Token",
+                    "X-Amz-User-Agent",
+                    "X-Amzn-Trace-Id"
+                  ],
+                  "AllowMethods": [
+                    "OPTIONS",
+                    "POST",
+                    "GET",
+                    "PUT",
+                    "DELETE"
+                  ],
+                  "AllowOrigins": [
+                    "*"
+                  ]
+                }
+              }
+            },
+            "HttpApiStage": {
+              "Type": "AWS::ApiGatewayV2::Stage",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "StageName": "$default",
+                "AutoDeploy": true,
+                "DefaultRouteSettings": {
+                  "DetailedMetricsEnabled": false
+                }
+              }
+            },
+            "CustomAuthorizerLambdaAuthorizerPermissionHttpApi": {
+              "Type": "AWS::Lambda::Permission",
+              "Properties": {
+                "FunctionName": {
+                  "Fn::GetAtt": [
+                    "CustomAuthorizerLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "HttpApi"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              }
+            },
+            "HttpApiAuthorizerCustomAuthorizer": {
+              "Type": "AWS::ApiGatewayV2::Authorizer",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "Name": "customAuthorizer",
+                "IdentitySource": [
+                  "$request.header.Authorization",
+                  "$request.header.authorization"
+                ],
+                "AuthorizerType": "REQUEST",
+                "EnableSimpleResponses": true,
+                "AuthorizerResultTtlInSeconds": 0,
+                "AuthorizerPayloadFormatVersion": "2.0",
+                "AuthorizerUri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "CustomAuthorizerLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              }
+            },
+            "CreateTodoLambdaPermissionHttpApi": {
+              "Type": "AWS::Lambda::Permission",
+              "Properties": {
+                "FunctionName": {
+                  "Fn::GetAtt": [
+                    "CreateTodoLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "HttpApi"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              }
+            },
+            "HttpApiIntegrationCreateTodo": {
+              "Type": "AWS::ApiGatewayV2::Integration",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "IntegrationType": "AWS_PROXY",
+                "IntegrationUri": {
+                  "Fn::GetAtt": [
+                    "CreateTodoLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "PayloadFormatVersion": "2.0",
+                "TimeoutInMillis": 30000
+              }
+            },
+            "HttpApiRoutePostTodos": {
+              "Type": "AWS::ApiGatewayV2::Route",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "RouteKey": "POST /todos",
+                "Target": {
+                  "Fn::Join": [
+                    "/",
+                    [
+                      "integrations",
+                      {
+                        "Ref": "HttpApiIntegrationCreateTodo"
+                      }
+                    ]
+                  ]
+                },
+                "AuthorizationType": "CUSTOM",
+                "AuthorizerId": {
+                  "Ref": "HttpApiAuthorizerCustomAuthorizer"
+                }
+              },
+              "DependsOn": "HttpApiIntegrationCreateTodo"
+            },
+            "ListTodosLambdaPermissionHttpApi": {
+              "Type": "AWS::Lambda::Permission",
+              "Properties": {
+                "FunctionName": {
+                  "Fn::GetAtt": [
+                    "ListTodosLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "HttpApi"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              }
+            },
+            "HttpApiIntegrationListTodos": {
+              "Type": "AWS::ApiGatewayV2::Integration",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "IntegrationType": "AWS_PROXY",
+                "IntegrationUri": {
+                  "Fn::GetAtt": [
+                    "ListTodosLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "PayloadFormatVersion": "2.0",
+                "TimeoutInMillis": 30000
+              }
+            },
+            "HttpApiRouteGetTodos": {
+              "Type": "AWS::ApiGatewayV2::Route",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "RouteKey": "GET /todos",
+                "Target": {
+                  "Fn::Join": [
+                    "/",
+                    [
+                      "integrations",
+                      {
+                        "Ref": "HttpApiIntegrationListTodos"
+                      }
+                    ]
+                  ]
+                },
+                "AuthorizationType": "CUSTOM",
+                "AuthorizerId": {
+                  "Ref": "HttpApiAuthorizerCustomAuthorizer"
+                }
+              },
+              "DependsOn": "HttpApiIntegrationListTodos"
+            },
+            "GetTodoLambdaPermissionHttpApi": {
+              "Type": "AWS::Lambda::Permission",
+              "Properties": {
+                "FunctionName": {
+                  "Fn::GetAtt": [
+                    "GetTodoLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "HttpApi"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              }
+            },
+            "HttpApiIntegrationGetTodo": {
+              "Type": "AWS::ApiGatewayV2::Integration",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "IntegrationType": "AWS_PROXY",
+                "IntegrationUri": {
+                  "Fn::GetAtt": [
+                    "GetTodoLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "PayloadFormatVersion": "2.0",
+                "TimeoutInMillis": 30000
+              }
+            },
+            "HttpApiRouteGetTodosIdVar": {
+              "Type": "AWS::ApiGatewayV2::Route",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "RouteKey": "GET /todos/{id}",
+                "Target": {
+                  "Fn::Join": [
+                    "/",
+                    [
+                      "integrations",
+                      {
+                        "Ref": "HttpApiIntegrationGetTodo"
+                      }
+                    ]
+                  ]
+                },
+                "AuthorizationType": "CUSTOM",
+                "AuthorizerId": {
+                  "Ref": "HttpApiAuthorizerCustomAuthorizer"
+                }
+              },
+              "DependsOn": "HttpApiIntegrationGetTodo"
+            },
+            "UpdateTodoLambdaPermissionHttpApi": {
+              "Type": "AWS::Lambda::Permission",
+              "Properties": {
+                "FunctionName": {
+                  "Fn::GetAtt": [
+                    "UpdateTodoLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "HttpApi"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              }
+            },
+            "HttpApiIntegrationUpdateTodo": {
+              "Type": "AWS::ApiGatewayV2::Integration",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "IntegrationType": "AWS_PROXY",
+                "IntegrationUri": {
+                  "Fn::GetAtt": [
+                    "UpdateTodoLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "PayloadFormatVersion": "2.0",
+                "TimeoutInMillis": 30000
+              }
+            },
+            "HttpApiRoutePutTodosIdVar": {
+              "Type": "AWS::ApiGatewayV2::Route",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "RouteKey": "PUT /todos/{id}",
+                "Target": {
+                  "Fn::Join": [
+                    "/",
+                    [
+                      "integrations",
+                      {
+                        "Ref": "HttpApiIntegrationUpdateTodo"
+                      }
+                    ]
+                  ]
+                },
+                "AuthorizationType": "CUSTOM",
+                "AuthorizerId": {
+                  "Ref": "HttpApiAuthorizerCustomAuthorizer"
+                }
+              },
+              "DependsOn": "HttpApiIntegrationUpdateTodo"
+            },
+            "DeleteTodoLambdaPermissionHttpApi": {
+              "Type": "AWS::Lambda::Permission",
+              "Properties": {
+                "FunctionName": {
+                  "Fn::GetAtt": [
+                    "DeleteTodoLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "HttpApi"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              }
+            },
+            "HttpApiIntegrationDeleteTodo": {
+              "Type": "AWS::ApiGatewayV2::Integration",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "IntegrationType": "AWS_PROXY",
+                "IntegrationUri": {
+                  "Fn::GetAtt": [
+                    "DeleteTodoLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "PayloadFormatVersion": "2.0",
+                "TimeoutInMillis": 30000
+              }
+            },
+            "HttpApiRouteDeleteTodosIdVar": {
+              "Type": "AWS::ApiGatewayV2::Route",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "RouteKey": "DELETE /todos/{id}",
+                "Target": {
+                  "Fn::Join": [
+                    "/",
+                    [
+                      "integrations",
+                      {
+                        "Ref": "HttpApiIntegrationDeleteTodo"
+                      }
+                    ]
+                  ]
+                },
+                "AuthorizationType": "CUSTOM",
+                "AuthorizerId": {
+                  "Ref": "HttpApiAuthorizerCustomAuthorizer"
+                }
+              },
+              "DependsOn": "HttpApiIntegrationDeleteTodo"
+            },
+            "ListTodosByStatusLambdaPermissionHttpApi": {
+              "Type": "AWS::Lambda::Permission",
+              "Properties": {
+                "FunctionName": {
+                  "Fn::GetAtt": [
+                    "ListTodosByStatusLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "HttpApi"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              }
+            },
+            "HttpApiIntegrationListTodosByStatus": {
+              "Type": "AWS::ApiGatewayV2::Integration",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "IntegrationType": "AWS_PROXY",
+                "IntegrationUri": {
+                  "Fn::GetAtt": [
+                    "ListTodosByStatusLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "PayloadFormatVersion": "2.0",
+                "TimeoutInMillis": 30000
+              }
+            },
+            "HttpApiRouteGetTodosByDashstatusStatusVar": {
+              "Type": "AWS::ApiGatewayV2::Route",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "RouteKey": "GET /todos/by-status/{status}",
+                "Target": {
+                  "Fn::Join": [
+                    "/",
+                    [
+                      "integrations",
+                      {
+                        "Ref": "HttpApiIntegrationListTodosByStatus"
+                      }
+                    ]
+                  ]
+                },
+                "AuthorizationType": "CUSTOM",
+                "AuthorizerId": {
+                  "Ref": "HttpApiAuthorizerCustomAuthorizer"
+                }
+              },
+              "DependsOn": "HttpApiIntegrationListTodosByStatus"
+            },
+            "AuthorizerRole": {
+              "Type": "AWS::IAM::Role",
+              "Properties": {
+                "RoleName": "task-manager-service-dev-authorizer-role",
+                "AssumeRolePolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Principal": {
+                        "Service": [
+                          "lambda.amazonaws.com"
+                        ]
+                      },
+                      "Action": "sts:AssumeRole"
+                    }
+                  ]
+                },
+                "Policies": [
+                  {
+                    "PolicyName": "AuthorizerPolicy",
+                    "PolicyDocument": {
+                      "Version": "2012-10-17",
+                      "Statement": [
+                        {
+                          "Effect": "Allow",
+                          "Action": [
+                            "logs:CreateLogGroup",
+                            "logs:CreateLogStream",
+                            "logs:PutLogEvents"
+                          ],
+                          "Resource": [
+                            "arn:aws:logs:ap-southeast-1:476114140816:log-group:/aws/lambda/*:*:*"
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "TodosTable": {
+              "Type": "AWS::DynamoDB::Table",
+              "Properties": {
+                "TableName": "todos-table",
+                "AttributeDefinitions": [
+                  {
+                    "AttributeName": "id",
+                    "AttributeType": "S"
+                  },
+                  {
+                    "AttributeName": "status",
+                    "AttributeType": "S"
+                  }
+                ],
+                "KeySchema": [
+                  {
+                    "AttributeName": "id",
+                    "KeyType": "HASH"
+                  }
+                ],
+                "ProvisionedThroughput": {
+                  "ReadCapacityUnits": 1,
+                  "WriteCapacityUnits": 1
+                },
+                "GlobalSecondaryIndexes": [
+                  {
+                    "IndexName": "status-index",
+                    "KeySchema": [
+                      {
+                        "AttributeName": "status",
+                        "KeyType": "HASH"
+                      }
+                    ],
+                    "Projection": {
+                      "ProjectionType": "ALL"
+                    },
+                    "ProvisionedThroughput": {
+                      "ReadCapacityUnits": 1,
+                      "WriteCapacityUnits": 1
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "Outputs": {
+            "ServerlessDeploymentBucketName": {
+              "Value": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+              "Export": {
+                "Name": "sls-task-manager-service-dev-ServerlessDeploymentBucketName"
+              }
+            },
+            "CustomAuthorizerLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "CustomAuthorizerLambdaVersionODfRHskM6mSmqlTyRrd6jMikICaMW5IlKtoZEnQE"
+              },
+              "Export": {
+                "Name": "sls-task-manager-service-dev-CustomAuthorizerLambdaFunctionQualifiedArn"
+              }
+            },
+            "CreateTodoLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "CreateTodoLambdaVersionU0YuQ8gh9iu3qEmYb8EwjTWOOm8APBXCfunogKHg"
+              },
+              "Export": {
+                "Name": "sls-task-manager-service-dev-CreateTodoLambdaFunctionQualifiedArn"
+              }
+            },
+            "ListTodosLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "ListTodosLambdaVersionChAHaUdO0iO26y0KJCGkQTOz5bvOER7Bl3p5QFnzk"
+              },
+              "Export": {
+                "Name": "sls-task-manager-service-dev-ListTodosLambdaFunctionQualifiedArn"
+              }
+            },
+            "GetTodoLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "GetTodoLambdaVersioneSmRYfW1tPy1Ftc9nAKUXBZfklXFkEfnAK1RMFBEIU"
+              },
+              "Export": {
+                "Name": "sls-task-manager-service-dev-GetTodoLambdaFunctionQualifiedArn"
+              }
+            },
+            "UpdateTodoLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "UpdateTodoLambdaVersionaHvXiE4SpheXnEE3Zhk2ZlIJYuDkMoxKYGGIWufic"
+              },
+              "Export": {
+                "Name": "sls-task-manager-service-dev-UpdateTodoLambdaFunctionQualifiedArn"
+              }
+            },
+            "DeleteTodoLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "DeleteTodoLambdaVersionFpis6CnBW764xaZpl2p7vMMYP68kWeWbHjPjt6P6e8"
+              },
+              "Export": {
+                "Name": "sls-task-manager-service-dev-DeleteTodoLambdaFunctionQualifiedArn"
+              }
+            },
+            "ListTodosByStatusLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "ListTodosByStatusLambdaVersionNYXiZflIQ66OmuY9yF7OBVCWfvlTAbbhGv6Cp3pNTs"
+              },
+              "Export": {
+                "Name": "sls-task-manager-service-dev-ListTodosByStatusLambdaFunctionQualifiedArn"
+              }
+            },
+            "HttpApiId": {
+              "Description": "Id of the HTTP API",
+              "Value": {
+                "Ref": "HttpApi"
+              },
+              "Export": {
+                "Name": "sls-task-manager-service-dev-HttpApiId"
+              }
+            },
+            "HttpApiUrl": {
+              "Description": "URL of the HTTP API",
+              "Value": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "https://",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    ".execute-api.",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ".",
+                    {
+                      "Ref": "AWS::URLSuffix"
+                    }
+                  ]
+                ]
+              },
+              "Export": {
+                "Name": "sls-task-manager-service-dev-HttpApiUrl"
+              }
+            }
+          }
+        },
+        "vpc": {}
+      },
+      "custom": {
+        "tableName": "todos-table"
+      },
+      "plugins": [
+        "serverless-offline"
+      ],
+      "functions": {
+        "customAuthorizer": {
+          "handler": "src/authorizer.handler",
+          "role": "AuthorizerRole",
+          "events": [],
+          "name": "task-manager-service-dev-customAuthorizer",
+          "environment": {
+            "NODE_OPTIONS": "--enable-source-maps"
+          },
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "CustomAuthorizerLambdaVersionODfRHskM6mSmqlTyRrd6jMikICaMW5IlKtoZEnQE"
+        },
+        "createTodo": {
+          "handler": "src/controllers/todoController.createTodo",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/todos",
+                "method": "post",
+                "authorizer": {
+                  "name": "customAuthorizer"
+                }
+              },
+              "resolvedMethod": "POST",
+              "resolvedPath": "/todos"
+            }
+          ],
+          "name": "task-manager-service-dev-createTodo",
+          "environment": {
+            "NODE_OPTIONS": "--enable-source-maps"
+          },
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "CreateTodoLambdaVersionU0YuQ8gh9iu3qEmYb8EwjTWOOm8APBXCfunogKHg"
+        },
+        "listTodos": {
+          "handler": "src/controllers/todoController.listTodos",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/todos",
+                "method": "get",
+                "authorizer": {
+                  "name": "customAuthorizer"
+                }
+              },
+              "resolvedMethod": "GET",
+              "resolvedPath": "/todos"
+            }
+          ],
+          "name": "task-manager-service-dev-listTodos",
+          "environment": {
+            "NODE_OPTIONS": "--enable-source-maps"
+          },
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "ListTodosLambdaVersionChAHaUdO0iO26y0KJCGkQTOz5bvOER7Bl3p5QFnzk"
+        },
+        "getTodo": {
+          "handler": "src/controllers/todoController.getTodo",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/todos/{id}",
+                "method": "get",
+                "authorizer": {
+                  "name": "customAuthorizer"
+                }
+              },
+              "resolvedMethod": "GET",
+              "resolvedPath": "/todos/{id}"
+            }
+          ],
+          "name": "task-manager-service-dev-getTodo",
+          "environment": {
+            "NODE_OPTIONS": "--enable-source-maps"
+          },
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "GetTodoLambdaVersioneSmRYfW1tPy1Ftc9nAKUXBZfklXFkEfnAK1RMFBEIU"
+        },
+        "updateTodo": {
+          "handler": "src/controllers/todoController.updateTodo",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/todos/{id}",
+                "method": "put",
+                "authorizer": {
+                  "name": "customAuthorizer"
+                }
+              },
+              "resolvedMethod": "PUT",
+              "resolvedPath": "/todos/{id}"
+            }
+          ],
+          "name": "task-manager-service-dev-updateTodo",
+          "environment": {
+            "NODE_OPTIONS": "--enable-source-maps"
+          },
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "UpdateTodoLambdaVersionaHvXiE4SpheXnEE3Zhk2ZlIJYuDkMoxKYGGIWufic"
+        },
+        "deleteTodo": {
+          "handler": "src/controllers/todoController.deleteTodo",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/todos/{id}",
+                "method": "delete",
+                "authorizer": {
+                  "name": "customAuthorizer"
+                }
+              },
+              "resolvedMethod": "DELETE",
+              "resolvedPath": "/todos/{id}"
+            }
+          ],
+          "name": "task-manager-service-dev-deleteTodo",
+          "environment": {
+            "NODE_OPTIONS": "--enable-source-maps"
+          },
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "DeleteTodoLambdaVersionFpis6CnBW764xaZpl2p7vMMYP68kWeWbHjPjt6P6e8"
+        },
+        "listTodosByStatus": {
+          "handler": "src/controllers/todoController.listTodosByStatus",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/todos/by-status/{status}",
+                "method": "get",
+                "authorizer": {
+                  "name": "customAuthorizer"
+                }
+              },
+              "resolvedMethod": "GET",
+              "resolvedPath": "/todos/by-status/{status}"
+            }
+          ],
+          "name": "task-manager-service-dev-listTodosByStatus",
+          "environment": {
+            "NODE_OPTIONS": "--enable-source-maps"
+          },
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "ListTodosByStatusLambdaVersionNYXiZflIQ66OmuY9yF7OBVCWfvlTAbbhGv6Cp3pNTs"
+        }
+      },
+      "resources": {
+        "Resources": {
+          "AuthorizerRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "RoleName": "task-manager-service-dev-authorizer-role",
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": [
+                        "lambda.amazonaws.com"
+                      ]
+                    },
+                    "Action": "sts:AssumeRole"
+                  }
+                ]
+              },
+              "Policies": [
+                {
+                  "PolicyName": "AuthorizerPolicy",
+                  "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:CreateLogGroup",
+                          "logs:CreateLogStream",
+                          "logs:PutLogEvents"
+                        ],
+                        "Resource": [
+                          "arn:aws:logs:ap-southeast-1:476114140816:log-group:/aws/lambda/*:*:*"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "TodosTable": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+              "TableName": "todos-table",
+              "AttributeDefinitions": [
+                {
+                  "AttributeName": "id",
+                  "AttributeType": "S"
+                },
+                {
+                  "AttributeName": "status",
+                  "AttributeType": "S"
+                }
+              ],
+              "KeySchema": [
+                {
+                  "AttributeName": "id",
+                  "KeyType": "HASH"
+                }
+              ],
+              "ProvisionedThroughput": {
+                "ReadCapacityUnits": 1,
+                "WriteCapacityUnits": 1
+              },
+              "GlobalSecondaryIndexes": [
+                {
+                  "IndexName": "status-index",
+                  "KeySchema": [
+                    {
+                      "AttributeName": "status",
+                      "KeyType": "HASH"
+                    }
+                  ],
+                  "Projection": {
+                    "ProjectionType": "ALL"
+                  },
+                  "ProvisionedThroughput": {
+                    "ReadCapacityUnits": 1,
+                    "WriteCapacityUnits": 1
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "Outputs": {}
+      }
+    },
+    "provider": {
+      "name": "aws",
+      "runtime": "nodejs18.x",
+      "region": "ap-southeast-1",
+      "stage": "dev",
+      "httpApi": {
+        "cors": true,
+        "authorizers": {
+          "customAuthorizer": {
+            "type": "request",
+            "functionName": "customAuthorizer",
+            "name": "customAuthorizer",
+            "resultTtlInSeconds": 0,
+            "enableSimpleResponses": true,
+            "payloadVersion": "2.0",
+            "identitySource": [
+              "$request.header.Authorization",
+              "$request.header.authorization"
+            ]
+          }
+        }
+      },
+      "environment": {
+        "TABLE_NAME": "todos-table",
+        "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
+        "CLIENT_ID": "4na95skm65bele9e295ej6q7u5"
+      },
+      "iam": {
+        "role": {
+          "statements": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "dynamodb:GetItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:Scan",
+                "dynamodb:Query"
+              ],
+              "Resource": [
+                "arn:aws:dynamodb:ap-southeast-1:476114140816:table/todos-table",
+                "arn:aws:dynamodb:ap-southeast-1:476114140816:table/todos-table/index/status-index"
+              ]
+            }
+          ]
+        }
+      },
+      "versionFunctions": true,
+      "compiledCloudFormationTemplate": {
+        "AWSTemplateFormatVersion": "2010-09-09",
+        "Description": "The AWS CloudFormation template for this Serverless application",
+        "Resources": {
+          "CustomAuthorizerLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/task-manager-service-dev-customAuthorizer"
+            }
+          },
+          "CreateTodoLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/task-manager-service-dev-createTodo"
+            }
+          },
+          "ListTodosLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/task-manager-service-dev-listTodos"
+            }
+          },
+          "GetTodoLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/task-manager-service-dev-getTodo"
+            }
+          },
+          "UpdateTodoLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/task-manager-service-dev-updateTodo"
+            }
+          },
+          "DeleteTodoLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/task-manager-service-dev-deleteTodo"
+            }
+          },
+          "ListTodosByStatusLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/task-manager-service-dev-listTodosByStatus"
+            }
+          },
+          "IamRoleLambdaExecution": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": [
+                        "lambda.amazonaws.com"
+                      ]
+                    },
+                    "Action": [
+                      "sts:AssumeRole"
+                    ]
+                  }
+                ]
+              },
+              "Policies": [
+                {
+                  "PolicyName": {
+                    "Fn::Join": [
+                      "-",
+                      [
+                        "task-manager-service",
+                        "dev",
+                        "lambda"
+                      ]
+                    ]
+                  },
+                  "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:CreateLogStream",
+                          "logs:CreateLogGroup",
+                          "logs:TagResource"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/task-manager-service-dev*:*"
+                          }
+                        ]
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:PutLogEvents"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/task-manager-service-dev*:*:*"
+                          }
+                        ]
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "dynamodb:GetItem",
+                          "dynamodb:PutItem",
+                          "dynamodb:UpdateItem",
+                          "dynamodb:DeleteItem",
+                          "dynamodb:Scan",
+                          "dynamodb:Query"
+                        ],
+                        "Resource": [
+                          "arn:aws:dynamodb:ap-southeast-1:476114140816:table/todos-table",
+                          "arn:aws:dynamodb:ap-southeast-1:476114140816:table/todos-table/index/status-index"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Path": "/",
+              "RoleName": {
+                "Fn::Join": [
+                  "-",
+                  [
+                    "task-manager-service",
+                    "dev",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    "lambdaRole"
+                  ]
+                ]
+              }
+            }
+          },
+          "CustomAuthorizerLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+                "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+              },
+              "Handler": "src/authorizer.handler",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "task-manager-service-dev-customAuthorizer",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "TABLE_NAME": "todos-table",
+                  "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
+                  "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                  "NODE_OPTIONS": "--enable-source-maps"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "AuthorizerRole",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "CustomAuthorizerLogGroup",
+              "AuthorizerRole"
+            ]
+          },
+          "CreateTodoLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+                "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+              },
+              "Handler": "src/controllers/todoController.createTodo",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "task-manager-service-dev-createTodo",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "TABLE_NAME": "todos-table",
+                  "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
+                  "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                  "NODE_OPTIONS": "--enable-source-maps"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "CreateTodoLogGroup"
+            ]
+          },
+          "ListTodosLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+                "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+              },
+              "Handler": "src/controllers/todoController.listTodos",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "task-manager-service-dev-listTodos",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "TABLE_NAME": "todos-table",
+                  "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
+                  "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                  "NODE_OPTIONS": "--enable-source-maps"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "ListTodosLogGroup"
+            ]
+          },
+          "GetTodoLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+                "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+              },
+              "Handler": "src/controllers/todoController.getTodo",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "task-manager-service-dev-getTodo",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "TABLE_NAME": "todos-table",
+                  "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
+                  "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                  "NODE_OPTIONS": "--enable-source-maps"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "GetTodoLogGroup"
+            ]
+          },
+          "UpdateTodoLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+                "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+              },
+              "Handler": "src/controllers/todoController.updateTodo",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "task-manager-service-dev-updateTodo",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "TABLE_NAME": "todos-table",
+                  "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
+                  "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                  "NODE_OPTIONS": "--enable-source-maps"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "UpdateTodoLogGroup"
+            ]
+          },
+          "DeleteTodoLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+                "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+              },
+              "Handler": "src/controllers/todoController.deleteTodo",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "task-manager-service-dev-deleteTodo",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "TABLE_NAME": "todos-table",
+                  "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
+                  "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                  "NODE_OPTIONS": "--enable-source-maps"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "DeleteTodoLogGroup"
+            ]
+          },
+          "ListTodosByStatusLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+                "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+              },
+              "Handler": "src/controllers/todoController.listTodosByStatus",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "task-manager-service-dev-listTodosByStatus",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "TABLE_NAME": "todos-table",
+                  "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
+                  "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                  "NODE_OPTIONS": "--enable-source-maps"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "ListTodosByStatusLogGroup"
+            ]
+          },
+          "CustomAuthorizerLambdaVersionODfRHskM6mSmqlTyRrd6jMikICaMW5IlKtoZEnQE": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "CustomAuthorizerLambdaFunction"
+              },
+              "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+            }
+          },
+          "CreateTodoLambdaVersionU0YuQ8gh9iu3qEmYb8EwjTWOOm8APBXCfunogKHg": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "CreateTodoLambdaFunction"
+              },
+              "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+            }
+          },
+          "ListTodosLambdaVersionChAHaUdO0iO26y0KJCGkQTOz5bvOER7Bl3p5QFnzk": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "ListTodosLambdaFunction"
+              },
+              "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+            }
+          },
+          "GetTodoLambdaVersioneSmRYfW1tPy1Ftc9nAKUXBZfklXFkEfnAK1RMFBEIU": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "GetTodoLambdaFunction"
+              },
+              "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+            }
+          },
+          "UpdateTodoLambdaVersionaHvXiE4SpheXnEE3Zhk2ZlIJYuDkMoxKYGGIWufic": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "UpdateTodoLambdaFunction"
+              },
+              "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+            }
+          },
+          "DeleteTodoLambdaVersionFpis6CnBW764xaZpl2p7vMMYP68kWeWbHjPjt6P6e8": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "DeleteTodoLambdaFunction"
+              },
+              "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+            }
+          },
+          "ListTodosByStatusLambdaVersionNYXiZflIQ66OmuY9yF7OBVCWfvlTAbbhGv6Cp3pNTs": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "ListTodosByStatusLambdaFunction"
+              },
+              "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+            }
+          },
+          "HttpApi": {
+            "Type": "AWS::ApiGatewayV2::Api",
+            "Properties": {
+              "Name": "dev-task-manager-service",
+              "ProtocolType": "HTTP",
+              "CorsConfiguration": {
+                "AllowCredentials": "<REDACTED>",
+                "AllowHeaders": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token",
+                  "X-Amz-User-Agent",
+                  "X-Amzn-Trace-Id"
+                ],
+                "AllowMethods": [
+                  "OPTIONS",
+                  "POST",
+                  "GET",
+                  "PUT",
+                  "DELETE"
+                ],
+                "AllowOrigins": [
+                  "*"
+                ]
+              }
+            }
+          },
+          "HttpApiStage": {
+            "Type": "AWS::ApiGatewayV2::Stage",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "StageName": "$default",
+              "AutoDeploy": true,
+              "DefaultRouteSettings": {
+                "DetailedMetricsEnabled": false
+              }
+            }
+          },
+          "CustomAuthorizerLambdaAuthorizerPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "CustomAuthorizerLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiAuthorizerCustomAuthorizer": {
+            "Type": "AWS::ApiGatewayV2::Authorizer",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "Name": "customAuthorizer",
+              "IdentitySource": [
+                "$request.header.Authorization",
+                "$request.header.authorization"
+              ],
+              "AuthorizerType": "REQUEST",
+              "EnableSimpleResponses": true,
+              "AuthorizerResultTtlInSeconds": 0,
+              "AuthorizerPayloadFormatVersion": "2.0",
+              "AuthorizerUri": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":apigateway:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":lambda:path/2015-03-31/functions/",
+                    {
+                      "Fn::GetAtt": [
+                        "CustomAuthorizerLambdaFunction",
+                        "Arn"
+                      ]
+                    },
+                    "/invocations"
+                  ]
+                ]
+              }
+            }
+          },
+          "CreateTodoLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "CreateTodoLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationCreateTodo": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "Fn::GetAtt": [
+                  "CreateTodoLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRoutePostTodos": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "POST /todos",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationCreateTodo"
+                    }
+                  ]
+                ]
+              },
+              "AuthorizationType": "CUSTOM",
+              "AuthorizerId": {
+                "Ref": "HttpApiAuthorizerCustomAuthorizer"
+              }
+            },
+            "DependsOn": "HttpApiIntegrationCreateTodo"
+          },
+          "ListTodosLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "ListTodosLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationListTodos": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "Fn::GetAtt": [
+                  "ListTodosLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRouteGetTodos": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "GET /todos",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationListTodos"
+                    }
+                  ]
+                ]
+              },
+              "AuthorizationType": "CUSTOM",
+              "AuthorizerId": {
+                "Ref": "HttpApiAuthorizerCustomAuthorizer"
+              }
+            },
+            "DependsOn": "HttpApiIntegrationListTodos"
+          },
+          "GetTodoLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "GetTodoLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationGetTodo": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "Fn::GetAtt": [
+                  "GetTodoLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRouteGetTodosIdVar": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "GET /todos/{id}",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationGetTodo"
+                    }
+                  ]
+                ]
+              },
+              "AuthorizationType": "CUSTOM",
+              "AuthorizerId": {
+                "Ref": "HttpApiAuthorizerCustomAuthorizer"
+              }
+            },
+            "DependsOn": "HttpApiIntegrationGetTodo"
+          },
+          "UpdateTodoLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "UpdateTodoLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationUpdateTodo": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "Fn::GetAtt": [
+                  "UpdateTodoLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRoutePutTodosIdVar": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "PUT /todos/{id}",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationUpdateTodo"
+                    }
+                  ]
+                ]
+              },
+              "AuthorizationType": "CUSTOM",
+              "AuthorizerId": {
+                "Ref": "HttpApiAuthorizerCustomAuthorizer"
+              }
+            },
+            "DependsOn": "HttpApiIntegrationUpdateTodo"
+          },
+          "DeleteTodoLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "DeleteTodoLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationDeleteTodo": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "Fn::GetAtt": [
+                  "DeleteTodoLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRouteDeleteTodosIdVar": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "DELETE /todos/{id}",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationDeleteTodo"
+                    }
+                  ]
+                ]
+              },
+              "AuthorizationType": "CUSTOM",
+              "AuthorizerId": {
+                "Ref": "HttpApiAuthorizerCustomAuthorizer"
+              }
+            },
+            "DependsOn": "HttpApiIntegrationDeleteTodo"
+          },
+          "ListTodosByStatusLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "ListTodosByStatusLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationListTodosByStatus": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "Fn::GetAtt": [
+                  "ListTodosByStatusLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRouteGetTodosByDashstatusStatusVar": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "GET /todos/by-status/{status}",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationListTodosByStatus"
+                    }
+                  ]
+                ]
+              },
+              "AuthorizationType": "CUSTOM",
+              "AuthorizerId": {
+                "Ref": "HttpApiAuthorizerCustomAuthorizer"
+              }
+            },
+            "DependsOn": "HttpApiIntegrationListTodosByStatus"
+          },
+          "AuthorizerRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "RoleName": "task-manager-service-dev-authorizer-role",
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": [
+                        "lambda.amazonaws.com"
+                      ]
+                    },
+                    "Action": "sts:AssumeRole"
+                  }
+                ]
+              },
+              "Policies": [
+                {
+                  "PolicyName": "AuthorizerPolicy",
+                  "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:CreateLogGroup",
+                          "logs:CreateLogStream",
+                          "logs:PutLogEvents"
+                        ],
+                        "Resource": [
+                          "arn:aws:logs:ap-southeast-1:476114140816:log-group:/aws/lambda/*:*:*"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "TodosTable": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+              "TableName": "todos-table",
+              "AttributeDefinitions": [
+                {
+                  "AttributeName": "id",
+                  "AttributeType": "S"
+                },
+                {
+                  "AttributeName": "status",
+                  "AttributeType": "S"
+                }
+              ],
+              "KeySchema": [
+                {
+                  "AttributeName": "id",
+                  "KeyType": "HASH"
+                }
+              ],
+              "ProvisionedThroughput": {
+                "ReadCapacityUnits": 1,
+                "WriteCapacityUnits": 1
+              },
+              "GlobalSecondaryIndexes": [
+                {
+                  "IndexName": "status-index",
+                  "KeySchema": [
+                    {
+                      "AttributeName": "status",
+                      "KeyType": "HASH"
+                    }
+                  ],
+                  "Projection": {
+                    "ProjectionType": "ALL"
+                  },
+                  "ProvisionedThroughput": {
+                    "ReadCapacityUnits": 1,
+                    "WriteCapacityUnits": 1
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "Outputs": {
+          "ServerlessDeploymentBucketName": {
+            "Value": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+            "Export": {
+              "Name": "sls-task-manager-service-dev-ServerlessDeploymentBucketName"
+            }
+          },
+          "CustomAuthorizerLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "CustomAuthorizerLambdaVersionODfRHskM6mSmqlTyRrd6jMikICaMW5IlKtoZEnQE"
+            },
+            "Export": {
+              "Name": "sls-task-manager-service-dev-CustomAuthorizerLambdaFunctionQualifiedArn"
+            }
+          },
+          "CreateTodoLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "CreateTodoLambdaVersionU0YuQ8gh9iu3qEmYb8EwjTWOOm8APBXCfunogKHg"
+            },
+            "Export": {
+              "Name": "sls-task-manager-service-dev-CreateTodoLambdaFunctionQualifiedArn"
+            }
+          },
+          "ListTodosLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "ListTodosLambdaVersionChAHaUdO0iO26y0KJCGkQTOz5bvOER7Bl3p5QFnzk"
+            },
+            "Export": {
+              "Name": "sls-task-manager-service-dev-ListTodosLambdaFunctionQualifiedArn"
+            }
+          },
+          "GetTodoLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "GetTodoLambdaVersioneSmRYfW1tPy1Ftc9nAKUXBZfklXFkEfnAK1RMFBEIU"
+            },
+            "Export": {
+              "Name": "sls-task-manager-service-dev-GetTodoLambdaFunctionQualifiedArn"
+            }
+          },
+          "UpdateTodoLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "UpdateTodoLambdaVersionaHvXiE4SpheXnEE3Zhk2ZlIJYuDkMoxKYGGIWufic"
+            },
+            "Export": {
+              "Name": "sls-task-manager-service-dev-UpdateTodoLambdaFunctionQualifiedArn"
+            }
+          },
+          "DeleteTodoLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "DeleteTodoLambdaVersionFpis6CnBW764xaZpl2p7vMMYP68kWeWbHjPjt6P6e8"
+            },
+            "Export": {
+              "Name": "sls-task-manager-service-dev-DeleteTodoLambdaFunctionQualifiedArn"
+            }
+          },
+          "ListTodosByStatusLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "ListTodosByStatusLambdaVersionNYXiZflIQ66OmuY9yF7OBVCWfvlTAbbhGv6Cp3pNTs"
+            },
+            "Export": {
+              "Name": "sls-task-manager-service-dev-ListTodosByStatusLambdaFunctionQualifiedArn"
+            }
+          },
+          "HttpApiId": {
+            "Description": "Id of the HTTP API",
+            "Value": {
+              "Ref": "HttpApi"
+            },
+            "Export": {
+              "Name": "sls-task-manager-service-dev-HttpApiId"
+            }
+          },
+          "HttpApiUrl": {
+            "Description": "URL of the HTTP API",
+            "Value": {
+              "Fn::Join": [
+                "",
+                [
+                  "https://",
+                  {
+                    "Ref": "HttpApi"
+                  },
+                  ".execute-api.",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ".",
+                  {
+                    "Ref": "AWS::URLSuffix"
+                  }
+                ]
+              ]
+            },
+            "Export": {
+              "Name": "sls-task-manager-service-dev-HttpApiUrl"
+            }
+          }
+        }
+      },
+      "vpc": {}
+    },
+    "dashboard": {
+      "isEnabledForService": false,
+      "requiredAuthentication": false,
+      "orgFeaturesInUse": null,
+      "orgObservabilityIntegrations": null,
+      "serviceAppId": null,
+      "serviceProvider": null,
+      "instanceParameters": null
+    },
+    "serviceRawFile": "# \"org\" ensures this Service is used with the correct Serverless Framework Access Key.\norg: nlpnserverless\nservice: task-manager-service\n\nframeworkVersion: '4'\n\nprovider:\n  name: aws\n  runtime: nodejs18.x\n  region: ap-southeast-1\n  stage: dev\n  httpApi:\n    cors: true\n    authorizers:\n      customAuthorizer:\n        type: request\n        functionName: customAuthorizer\n        name: customAuthorizer\n        resultTtlInSeconds: 0\n        enableSimpleResponses: true\n        payloadVersion: '2.0'\n        identitySource:\n          - $request.header.Authorization\n          - $request.header.authorization\n  environment:\n    TABLE_NAME: ${self:custom.tableName}\n    USER_POOL_ID: ap-southeast-1_4Fe9nw33I\n    CLIENT_ID: 4na95skm65bele9e295ej6q7u5\n  iam:\n    role:\n      statements:\n        - Effect: Allow\n          Action:\n            - dynamodb:GetItem\n            - dynamodb:PutItem\n            - dynamodb:UpdateItem\n            - dynamodb:DeleteItem\n            - dynamodb:Scan\n            - dynamodb:Query\n          Resource:\n            - \"arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:custom.tableName}\"\n            - \"arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:custom.tableName}/index/status-index\"\n\ncustom:\n  tableName: 'todos-table'\n\nplugins:\n  - serverless-offline\n\nfunctions:\n  customAuthorizer:\n    handler: src/authorizer.handler\n    role: AuthorizerRole\n\n  createTodo:\n    handler: src/controllers/todoController.createTodo\n    events:\n      - httpApi:\n          path: /todos\n          method: post\n          authorizer:\n            name: customAuthorizer\n\n  listTodos:\n    handler: src/controllers/todoController.listTodos\n    events:\n      - httpApi:\n          path: /todos\n          method: get\n          authorizer:\n            name: customAuthorizer\n\n  getTodo:\n    handler: src/controllers/todoController.getTodo\n    events:\n      - httpApi:\n          path: /todos/{id}\n          method: get\n          authorizer:\n            name: customAuthorizer\n\n  updateTodo:\n    handler: src/controllers/todoController.updateTodo\n    events:\n      - httpApi:\n          path: /todos/{id}\n          method: put\n          authorizer:\n            name: customAuthorizer\n\n  deleteTodo:\n    handler: src/controllers/todoController.deleteTodo\n    events:\n      - httpApi:\n          path: /todos/{id}\n          method: delete\n          authorizer:\n            name: customAuthorizer\n\n  listTodosByStatus:\n    handler: src/controllers/todoController.listTodosByStatus\n    events:\n      - httpApi:\n          path: /todos/by-status/{status}\n          method: get\n          authorizer:\n            name: customAuthorizer\n\nresources:\n  Resources:\n    AuthorizerRole:\n      Type: AWS::IAM::Role\n      Properties:\n        RoleName: ${self:service}-${self:provider.stage}-authorizer-role\n        AssumeRolePolicyDocument:\n          Version: '2012-10-17'\n          Statement:\n            - Effect: Allow\n              Principal:\n                Service:\n                  - lambda.amazonaws.com\n              Action: sts:AssumeRole\n        Policies:\n          - PolicyName: AuthorizerPolicy\n            PolicyDocument:\n              Version: '2012-10-17'\n              Statement:\n                - Effect: Allow\n                  Action:\n                    - logs:CreateLogGroup\n                    - logs:CreateLogStream\n                    - logs:PutLogEvents\n                  Resource:\n                    - 'arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/aws/lambda/*:*:*'\n\n    TodosTable:\n      Type: 'AWS::DynamoDB::Table'\n      Properties:\n        TableName: ${self:custom.tableName}\n        AttributeDefinitions:\n          - AttributeName: 'id'\n            AttributeType: 'S'\n          - AttributeName: 'status'\n            AttributeType: 'S'\n        KeySchema:\n          - AttributeName: 'id'\n            KeyType: 'HASH'\n        ProvisionedThroughput:\n          ReadCapacityUnits: 1\n          WriteCapacityUnits: 1\n        GlobalSecondaryIndexes:\n          - IndexName: 'status-index'\n            KeySchema:\n              - AttributeName: 'status'\n                KeyType: 'HASH'\n            Projection:\n              ProjectionType: 'ALL'\n            ProvisionedThroughput:\n              ReadCapacityUnits: 1\n              WriteCapacityUnits: 1",
+    "command": [
+      "deploy"
+    ],
+    "options": {},
+    "orgId": "ec991aa7-6595-499d-8607-2d69fe3d966d",
+    "orgName": "nlpnserverless",
+    "userId": "7NHW3j56nkBFVH5pnn",
+    "userName": "nlpnserverless",
+    "serviceProviderAwsAccountId": "476114140816",
+    "serviceProviderAwsCfStackName": "task-manager-service-dev",
+    "serviceProviderAwsCfStackId": "arn:aws:cloudformation:ap-southeast-1:476114140816:stack/task-manager-service-dev/7931cfe0-8244-11f0-9259-066549049575",
+    "serviceProviderAwsCfStackCreated": "2025-08-26T06:18:25.232Z",
+    "serviceProviderAwsCfStackUpdated": "2025-08-27T07:12:02.822Z",
+    "serviceProviderAwsCfStackStatus": "UPDATE_COMPLETE",
+    "serviceProviderAwsCfStackOutputs": [
+      {
+        "OutputKey": "UpdateTodoLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-southeast-1:476114140816:function:task-manager-service-dev-updateTodo:16",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-task-manager-service-dev-UpdateTodoLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "GetTodoLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-southeast-1:476114140816:function:task-manager-service-dev-getTodo:16",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-task-manager-service-dev-GetTodoLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "DeleteTodoLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-southeast-1:476114140816:function:task-manager-service-dev-deleteTodo:16",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-task-manager-service-dev-DeleteTodoLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "ListTodosByStatusLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-southeast-1:476114140816:function:task-manager-service-dev-listTodosByStatus:16",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-task-manager-service-dev-ListTodosByStatusLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "CustomAuthorizerLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-southeast-1:476114140816:function:task-manager-service-dev-customAuthorizer:1",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-task-manager-service-dev-CustomAuthorizerLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "HttpApiId",
+        "OutputValue": "p52ipnf0g2",
+        "Description": "Id of the HTTP API",
+        "ExportName": "sls-task-manager-service-dev-HttpApiId"
+      },
+      {
+        "OutputKey": "CreateTodoLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-southeast-1:476114140816:function:task-manager-service-dev-createTodo:16",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-task-manager-service-dev-CreateTodoLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "ServerlessDeploymentBucketName",
+        "OutputValue": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+        "ExportName": "sls-task-manager-service-dev-ServerlessDeploymentBucketName"
+      },
+      {
+        "OutputKey": "ListTodosLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-southeast-1:476114140816:function:task-manager-service-dev-listTodos:16",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-task-manager-service-dev-ListTodosLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "HttpApiUrl",
+        "OutputValue": "https://p52ipnf0g2.execute-api.ap-southeast-1.amazonaws.com",
+        "Description": "URL of the HTTP API",
+        "ExportName": "sls-task-manager-service-dev-HttpApiUrl"
+      }
+    ],
+    "compiledCloudFormationTemplate": {
+      "AWSTemplateFormatVersion": "2010-09-09",
+      "Description": "The AWS CloudFormation template for this Serverless application",
+      "Resources": {
+        "CustomAuthorizerLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/task-manager-service-dev-customAuthorizer"
+          }
+        },
+        "CreateTodoLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/task-manager-service-dev-createTodo"
+          }
+        },
+        "ListTodosLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/task-manager-service-dev-listTodos"
+          }
+        },
+        "GetTodoLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/task-manager-service-dev-getTodo"
+          }
+        },
+        "UpdateTodoLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/task-manager-service-dev-updateTodo"
+          }
+        },
+        "DeleteTodoLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/task-manager-service-dev-deleteTodo"
+          }
+        },
+        "ListTodosByStatusLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/task-manager-service-dev-listTodosByStatus"
+          }
+        },
+        "IamRoleLambdaExecution": {
+          "Type": "AWS::IAM::Role",
+          "Properties": {
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Service": [
+                      "lambda.amazonaws.com"
+                    ]
+                  },
+                  "Action": [
+                    "sts:AssumeRole"
+                  ]
+                }
+              ]
+            },
+            "Policies": [
+              {
+                "PolicyName": {
+                  "Fn::Join": [
+                    "-",
+                    [
+                      "task-manager-service",
+                      "dev",
+                      "lambda"
+                    ]
+                  ]
+                },
+                "PolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "logs:CreateLogStream",
+                        "logs:CreateLogGroup",
+                        "logs:TagResource"
+                      ],
+                      "Resource": [
+                        {
+                          "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/task-manager-service-dev*:*"
+                        }
+                      ]
+                    },
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "logs:PutLogEvents"
+                      ],
+                      "Resource": [
+                        {
+                          "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/task-manager-service-dev*:*:*"
+                        }
+                      ]
+                    },
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "dynamodb:GetItem",
+                        "dynamodb:PutItem",
+                        "dynamodb:UpdateItem",
+                        "dynamodb:DeleteItem",
+                        "dynamodb:Scan",
+                        "dynamodb:Query"
+                      ],
+                      "Resource": [
+                        "arn:aws:dynamodb:ap-southeast-1:476114140816:table/todos-table",
+                        "arn:aws:dynamodb:ap-southeast-1:476114140816:table/todos-table/index/status-index"
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "Path": "/",
+            "RoleName": {
+              "Fn::Join": [
+                "-",
+                [
+                  "task-manager-service",
+                  "dev",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  "lambdaRole"
+                ]
+              ]
+            }
+          }
+        },
+        "CustomAuthorizerLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+              "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+            },
+            "Handler": "src/authorizer.handler",
+            "Runtime": "nodejs18.x",
+            "FunctionName": "task-manager-service-dev-customAuthorizer",
+            "MemorySize": 1024,
+            "Timeout": 6,
+            "Environment": {
+              "Variables": {
+                "TABLE_NAME": "todos-table",
+                "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
+                "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                "NODE_OPTIONS": "--enable-source-maps"
+              }
+            },
+            "Role": {
+              "Fn::GetAtt": [
+                "AuthorizerRole",
+                "Arn"
+              ]
+            }
+          },
+          "DependsOn": [
+            "CustomAuthorizerLogGroup",
+            "AuthorizerRole"
+          ]
+        },
+        "CreateTodoLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+              "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+            },
+            "Handler": "src/controllers/todoController.createTodo",
+            "Runtime": "nodejs18.x",
+            "FunctionName": "task-manager-service-dev-createTodo",
+            "MemorySize": 1024,
+            "Timeout": 6,
+            "Environment": {
+              "Variables": {
+                "TABLE_NAME": "todos-table",
+                "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
+                "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                "NODE_OPTIONS": "--enable-source-maps"
+              }
+            },
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            }
+          },
+          "DependsOn": [
+            "CreateTodoLogGroup"
+          ]
+        },
+        "ListTodosLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+              "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+            },
+            "Handler": "src/controllers/todoController.listTodos",
+            "Runtime": "nodejs18.x",
+            "FunctionName": "task-manager-service-dev-listTodos",
+            "MemorySize": 1024,
+            "Timeout": 6,
+            "Environment": {
+              "Variables": {
+                "TABLE_NAME": "todos-table",
+                "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
+                "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                "NODE_OPTIONS": "--enable-source-maps"
+              }
+            },
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            }
+          },
+          "DependsOn": [
+            "ListTodosLogGroup"
+          ]
+        },
+        "GetTodoLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+              "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+            },
+            "Handler": "src/controllers/todoController.getTodo",
+            "Runtime": "nodejs18.x",
+            "FunctionName": "task-manager-service-dev-getTodo",
+            "MemorySize": 1024,
+            "Timeout": 6,
+            "Environment": {
+              "Variables": {
+                "TABLE_NAME": "todos-table",
+                "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
+                "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                "NODE_OPTIONS": "--enable-source-maps"
+              }
+            },
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            }
+          },
+          "DependsOn": [
+            "GetTodoLogGroup"
+          ]
+        },
+        "UpdateTodoLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+              "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+            },
+            "Handler": "src/controllers/todoController.updateTodo",
+            "Runtime": "nodejs18.x",
+            "FunctionName": "task-manager-service-dev-updateTodo",
+            "MemorySize": 1024,
+            "Timeout": 6,
+            "Environment": {
+              "Variables": {
+                "TABLE_NAME": "todos-table",
+                "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
+                "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                "NODE_OPTIONS": "--enable-source-maps"
+              }
+            },
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            }
+          },
+          "DependsOn": [
+            "UpdateTodoLogGroup"
+          ]
+        },
+        "DeleteTodoLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+              "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+            },
+            "Handler": "src/controllers/todoController.deleteTodo",
+            "Runtime": "nodejs18.x",
+            "FunctionName": "task-manager-service-dev-deleteTodo",
+            "MemorySize": 1024,
+            "Timeout": 6,
+            "Environment": {
+              "Variables": {
+                "TABLE_NAME": "todos-table",
+                "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
+                "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                "NODE_OPTIONS": "--enable-source-maps"
+              }
+            },
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            }
+          },
+          "DependsOn": [
+            "DeleteTodoLogGroup"
+          ]
+        },
+        "ListTodosByStatusLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+              "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+            },
+            "Handler": "src/controllers/todoController.listTodosByStatus",
+            "Runtime": "nodejs18.x",
+            "FunctionName": "task-manager-service-dev-listTodosByStatus",
+            "MemorySize": 1024,
+            "Timeout": 6,
+            "Environment": {
+              "Variables": {
+                "TABLE_NAME": "todos-table",
+                "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
+                "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                "NODE_OPTIONS": "--enable-source-maps"
+              }
+            },
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            }
+          },
+          "DependsOn": [
+            "ListTodosByStatusLogGroup"
+          ]
+        },
+        "CustomAuthorizerLambdaVersionODfRHskM6mSmqlTyRrd6jMikICaMW5IlKtoZEnQE": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "CustomAuthorizerLambdaFunction"
+            },
+            "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+          }
+        },
+        "CreateTodoLambdaVersionU0YuQ8gh9iu3qEmYb8EwjTWOOm8APBXCfunogKHg": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "CreateTodoLambdaFunction"
+            },
+            "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+          }
+        },
+        "ListTodosLambdaVersionChAHaUdO0iO26y0KJCGkQTOz5bvOER7Bl3p5QFnzk": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "ListTodosLambdaFunction"
+            },
+            "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+          }
+        },
+        "GetTodoLambdaVersioneSmRYfW1tPy1Ftc9nAKUXBZfklXFkEfnAK1RMFBEIU": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "GetTodoLambdaFunction"
+            },
+            "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+          }
+        },
+        "UpdateTodoLambdaVersionaHvXiE4SpheXnEE3Zhk2ZlIJYuDkMoxKYGGIWufic": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "UpdateTodoLambdaFunction"
+            },
+            "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+          }
+        },
+        "DeleteTodoLambdaVersionFpis6CnBW764xaZpl2p7vMMYP68kWeWbHjPjt6P6e8": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "DeleteTodoLambdaFunction"
+            },
+            "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+          }
+        },
+        "ListTodosByStatusLambdaVersionNYXiZflIQ66OmuY9yF7OBVCWfvlTAbbhGv6Cp3pNTs": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "ListTodosByStatusLambdaFunction"
+            },
+            "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+          }
+        },
+        "HttpApi": {
+          "Type": "AWS::ApiGatewayV2::Api",
+          "Properties": {
+            "Name": "dev-task-manager-service",
+            "ProtocolType": "HTTP",
+            "CorsConfiguration": {
+              "AllowHeaders": [
+                "Content-Type",
+                "X-Amz-Date",
+                "Authorization",
+                "X-Api-Key",
+                "X-Amz-Security-Token",
+                "X-Amz-User-Agent",
+                "X-Amzn-Trace-Id"
+              ],
+              "AllowMethods": [
+                "OPTIONS",
+                "POST",
+                "GET",
+                "PUT",
+                "DELETE"
+              ],
+              "AllowOrigins": [
+                "*"
+              ]
+            }
+          }
+        },
+        "HttpApiStage": {
+          "Type": "AWS::ApiGatewayV2::Stage",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "StageName": "$default",
+            "AutoDeploy": true,
+            "DefaultRouteSettings": {
+              "DetailedMetricsEnabled": false
+            }
+          }
+        },
+        "CustomAuthorizerLambdaAuthorizerPermissionHttpApi": {
+          "Type": "AWS::Lambda::Permission",
+          "Properties": {
+            "FunctionName": {
+              "Fn::GetAtt": [
+                "CustomAuthorizerLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Action": "lambda:InvokeFunction",
+            "Principal": "apigateway.amazonaws.com",
+            "SourceArn": {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:",
+                  {
+                    "Ref": "AWS::Partition"
+                  },
+                  ":execute-api:",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ":",
+                  {
+                    "Ref": "AWS::AccountId"
+                  },
+                  ":",
+                  {
+                    "Ref": "HttpApi"
+                  },
+                  "/*"
+                ]
+              ]
+            }
+          }
+        },
+        "HttpApiAuthorizerCustomAuthorizer": {
+          "Type": "AWS::ApiGatewayV2::Authorizer",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "Name": "customAuthorizer",
+            "IdentitySource": [
+              "$request.header.Authorization",
+              "$request.header.authorization"
+            ],
+            "AuthorizerType": "REQUEST",
+            "EnableSimpleResponses": true,
+            "AuthorizerResultTtlInSeconds": 0,
+            "AuthorizerPayloadFormatVersion": "2.0",
+            "AuthorizerUri": {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:",
+                  {
+                    "Ref": "AWS::Partition"
+                  },
+                  ":apigateway:",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ":lambda:path/2015-03-31/functions/",
+                  {
+                    "Fn::GetAtt": [
+                      "CustomAuthorizerLambdaFunction",
+                      "Arn"
+                    ]
+                  },
+                  "/invocations"
+                ]
+              ]
+            }
+          }
+        },
+        "CreateTodoLambdaPermissionHttpApi": {
+          "Type": "AWS::Lambda::Permission",
+          "Properties": {
+            "FunctionName": {
+              "Fn::GetAtt": [
+                "CreateTodoLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Action": "lambda:InvokeFunction",
+            "Principal": "apigateway.amazonaws.com",
+            "SourceArn": {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:",
+                  {
+                    "Ref": "AWS::Partition"
+                  },
+                  ":execute-api:",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ":",
+                  {
+                    "Ref": "AWS::AccountId"
+                  },
+                  ":",
+                  {
+                    "Ref": "HttpApi"
+                  },
+                  "/*"
+                ]
+              ]
+            }
+          }
+        },
+        "HttpApiIntegrationCreateTodo": {
+          "Type": "AWS::ApiGatewayV2::Integration",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "IntegrationType": "AWS_PROXY",
+            "IntegrationUri": {
+              "Fn::GetAtt": [
+                "CreateTodoLambdaFunction",
+                "Arn"
+              ]
+            },
+            "PayloadFormatVersion": "2.0",
+            "TimeoutInMillis": 30000
+          }
+        },
+        "HttpApiRoutePostTodos": {
+          "Type": "AWS::ApiGatewayV2::Route",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "RouteKey": "POST /todos",
+            "Target": {
+              "Fn::Join": [
+                "/",
+                [
+                  "integrations",
+                  {
+                    "Ref": "HttpApiIntegrationCreateTodo"
+                  }
+                ]
+              ]
+            },
+            "AuthorizationType": "CUSTOM",
+            "AuthorizerId": {
+              "Ref": "HttpApiAuthorizerCustomAuthorizer"
+            }
+          },
+          "DependsOn": "HttpApiIntegrationCreateTodo"
+        },
+        "ListTodosLambdaPermissionHttpApi": {
+          "Type": "AWS::Lambda::Permission",
+          "Properties": {
+            "FunctionName": {
+              "Fn::GetAtt": [
+                "ListTodosLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Action": "lambda:InvokeFunction",
+            "Principal": "apigateway.amazonaws.com",
+            "SourceArn": {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:",
+                  {
+                    "Ref": "AWS::Partition"
+                  },
+                  ":execute-api:",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ":",
+                  {
+                    "Ref": "AWS::AccountId"
+                  },
+                  ":",
+                  {
+                    "Ref": "HttpApi"
+                  },
+                  "/*"
+                ]
+              ]
+            }
+          }
+        },
+        "HttpApiIntegrationListTodos": {
+          "Type": "AWS::ApiGatewayV2::Integration",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "IntegrationType": "AWS_PROXY",
+            "IntegrationUri": {
+              "Fn::GetAtt": [
+                "ListTodosLambdaFunction",
+                "Arn"
+              ]
+            },
+            "PayloadFormatVersion": "2.0",
+            "TimeoutInMillis": 30000
+          }
+        },
+        "HttpApiRouteGetTodos": {
+          "Type": "AWS::ApiGatewayV2::Route",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "RouteKey": "GET /todos",
+            "Target": {
+              "Fn::Join": [
+                "/",
+                [
+                  "integrations",
+                  {
+                    "Ref": "HttpApiIntegrationListTodos"
+                  }
+                ]
+              ]
+            },
+            "AuthorizationType": "CUSTOM",
+            "AuthorizerId": {
+              "Ref": "HttpApiAuthorizerCustomAuthorizer"
+            }
+          },
+          "DependsOn": "HttpApiIntegrationListTodos"
+        },
+        "GetTodoLambdaPermissionHttpApi": {
+          "Type": "AWS::Lambda::Permission",
+          "Properties": {
+            "FunctionName": {
+              "Fn::GetAtt": [
+                "GetTodoLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Action": "lambda:InvokeFunction",
+            "Principal": "apigateway.amazonaws.com",
+            "SourceArn": {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:",
+                  {
+                    "Ref": "AWS::Partition"
+                  },
+                  ":execute-api:",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ":",
+                  {
+                    "Ref": "AWS::AccountId"
+                  },
+                  ":",
+                  {
+                    "Ref": "HttpApi"
+                  },
+                  "/*"
+                ]
+              ]
+            }
+          }
+        },
+        "HttpApiIntegrationGetTodo": {
+          "Type": "AWS::ApiGatewayV2::Integration",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "IntegrationType": "AWS_PROXY",
+            "IntegrationUri": {
+              "Fn::GetAtt": [
+                "GetTodoLambdaFunction",
+                "Arn"
+              ]
+            },
+            "PayloadFormatVersion": "2.0",
+            "TimeoutInMillis": 30000
+          }
+        },
+        "HttpApiRouteGetTodosIdVar": {
+          "Type": "AWS::ApiGatewayV2::Route",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "RouteKey": "GET /todos/{id}",
+            "Target": {
+              "Fn::Join": [
+                "/",
+                [
+                  "integrations",
+                  {
+                    "Ref": "HttpApiIntegrationGetTodo"
+                  }
+                ]
+              ]
+            },
+            "AuthorizationType": "CUSTOM",
+            "AuthorizerId": {
+              "Ref": "HttpApiAuthorizerCustomAuthorizer"
+            }
+          },
+          "DependsOn": "HttpApiIntegrationGetTodo"
+        },
+        "UpdateTodoLambdaPermissionHttpApi": {
+          "Type": "AWS::Lambda::Permission",
+          "Properties": {
+            "FunctionName": {
+              "Fn::GetAtt": [
+                "UpdateTodoLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Action": "lambda:InvokeFunction",
+            "Principal": "apigateway.amazonaws.com",
+            "SourceArn": {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:",
+                  {
+                    "Ref": "AWS::Partition"
+                  },
+                  ":execute-api:",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ":",
+                  {
+                    "Ref": "AWS::AccountId"
+                  },
+                  ":",
+                  {
+                    "Ref": "HttpApi"
+                  },
+                  "/*"
+                ]
+              ]
+            }
+          }
+        },
+        "HttpApiIntegrationUpdateTodo": {
+          "Type": "AWS::ApiGatewayV2::Integration",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "IntegrationType": "AWS_PROXY",
+            "IntegrationUri": {
+              "Fn::GetAtt": [
+                "UpdateTodoLambdaFunction",
+                "Arn"
+              ]
+            },
+            "PayloadFormatVersion": "2.0",
+            "TimeoutInMillis": 30000
+          }
+        },
+        "HttpApiRoutePutTodosIdVar": {
+          "Type": "AWS::ApiGatewayV2::Route",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "RouteKey": "PUT /todos/{id}",
+            "Target": {
+              "Fn::Join": [
+                "/",
+                [
+                  "integrations",
+                  {
+                    "Ref": "HttpApiIntegrationUpdateTodo"
+                  }
+                ]
+              ]
+            },
+            "AuthorizationType": "CUSTOM",
+            "AuthorizerId": {
+              "Ref": "HttpApiAuthorizerCustomAuthorizer"
+            }
+          },
+          "DependsOn": "HttpApiIntegrationUpdateTodo"
+        },
+        "DeleteTodoLambdaPermissionHttpApi": {
+          "Type": "AWS::Lambda::Permission",
+          "Properties": {
+            "FunctionName": {
+              "Fn::GetAtt": [
+                "DeleteTodoLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Action": "lambda:InvokeFunction",
+            "Principal": "apigateway.amazonaws.com",
+            "SourceArn": {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:",
+                  {
+                    "Ref": "AWS::Partition"
+                  },
+                  ":execute-api:",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ":",
+                  {
+                    "Ref": "AWS::AccountId"
+                  },
+                  ":",
+                  {
+                    "Ref": "HttpApi"
+                  },
+                  "/*"
+                ]
+              ]
+            }
+          }
+        },
+        "HttpApiIntegrationDeleteTodo": {
+          "Type": "AWS::ApiGatewayV2::Integration",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "IntegrationType": "AWS_PROXY",
+            "IntegrationUri": {
+              "Fn::GetAtt": [
+                "DeleteTodoLambdaFunction",
+                "Arn"
+              ]
+            },
+            "PayloadFormatVersion": "2.0",
+            "TimeoutInMillis": 30000
+          }
+        },
+        "HttpApiRouteDeleteTodosIdVar": {
+          "Type": "AWS::ApiGatewayV2::Route",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "RouteKey": "DELETE /todos/{id}",
+            "Target": {
+              "Fn::Join": [
+                "/",
+                [
+                  "integrations",
+                  {
+                    "Ref": "HttpApiIntegrationDeleteTodo"
+                  }
+                ]
+              ]
+            },
+            "AuthorizationType": "CUSTOM",
+            "AuthorizerId": {
+              "Ref": "HttpApiAuthorizerCustomAuthorizer"
+            }
+          },
+          "DependsOn": "HttpApiIntegrationDeleteTodo"
+        },
+        "ListTodosByStatusLambdaPermissionHttpApi": {
+          "Type": "AWS::Lambda::Permission",
+          "Properties": {
+            "FunctionName": {
+              "Fn::GetAtt": [
+                "ListTodosByStatusLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Action": "lambda:InvokeFunction",
+            "Principal": "apigateway.amazonaws.com",
+            "SourceArn": {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:",
+                  {
+                    "Ref": "AWS::Partition"
+                  },
+                  ":execute-api:",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ":",
+                  {
+                    "Ref": "AWS::AccountId"
+                  },
+                  ":",
+                  {
+                    "Ref": "HttpApi"
+                  },
+                  "/*"
+                ]
+              ]
+            }
+          }
+        },
+        "HttpApiIntegrationListTodosByStatus": {
+          "Type": "AWS::ApiGatewayV2::Integration",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "IntegrationType": "AWS_PROXY",
+            "IntegrationUri": {
+              "Fn::GetAtt": [
+                "ListTodosByStatusLambdaFunction",
+                "Arn"
+              ]
+            },
+            "PayloadFormatVersion": "2.0",
+            "TimeoutInMillis": 30000
+          }
+        },
+        "HttpApiRouteGetTodosByDashstatusStatusVar": {
+          "Type": "AWS::ApiGatewayV2::Route",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "RouteKey": "GET /todos/by-status/{status}",
+            "Target": {
+              "Fn::Join": [
+                "/",
+                [
+                  "integrations",
+                  {
+                    "Ref": "HttpApiIntegrationListTodosByStatus"
+                  }
+                ]
+              ]
+            },
+            "AuthorizationType": "CUSTOM",
+            "AuthorizerId": {
+              "Ref": "HttpApiAuthorizerCustomAuthorizer"
+            }
+          },
+          "DependsOn": "HttpApiIntegrationListTodosByStatus"
+        },
+        "AuthorizerRole": {
+          "Type": "AWS::IAM::Role",
+          "Properties": {
+            "RoleName": "task-manager-service-dev-authorizer-role",
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Service": [
+                      "lambda.amazonaws.com"
+                    ]
+                  },
+                  "Action": "sts:AssumeRole"
+                }
+              ]
+            },
+            "Policies": [
+              {
+                "PolicyName": "AuthorizerPolicy",
+                "PolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "logs:CreateLogGroup",
+                        "logs:CreateLogStream",
+                        "logs:PutLogEvents"
+                      ],
+                      "Resource": [
+                        "arn:aws:logs:ap-southeast-1:476114140816:log-group:/aws/lambda/*:*:*"
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "TodosTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "Properties": {
+            "TableName": "todos-table",
+            "AttributeDefinitions": [
+              {
+                "AttributeName": "id",
+                "AttributeType": "S"
+              },
+              {
+                "AttributeName": "status",
+                "AttributeType": "S"
+              }
+            ],
+            "KeySchema": [
+              {
+                "AttributeName": "id",
+                "KeyType": "HASH"
+              }
+            ],
+            "ProvisionedThroughput": {
+              "ReadCapacityUnits": 1,
+              "WriteCapacityUnits": 1
+            },
+            "GlobalSecondaryIndexes": [
+              {
+                "IndexName": "status-index",
+                "KeySchema": [
+                  {
+                    "AttributeName": "status",
+                    "KeyType": "HASH"
+                  }
+                ],
+                "Projection": {
+                  "ProjectionType": "ALL"
+                },
+                "ProvisionedThroughput": {
+                  "ReadCapacityUnits": 1,
+                  "WriteCapacityUnits": 1
+                }
+              }
+            ]
+          }
+        }
+      },
+      "Outputs": {
+        "ServerlessDeploymentBucketName": {
+          "Value": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+          "Export": {
+            "Name": "sls-task-manager-service-dev-ServerlessDeploymentBucketName"
+          }
+        },
+        "CustomAuthorizerLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "CustomAuthorizerLambdaVersionODfRHskM6mSmqlTyRrd6jMikICaMW5IlKtoZEnQE"
+          },
+          "Export": {
+            "Name": "sls-task-manager-service-dev-CustomAuthorizerLambdaFunctionQualifiedArn"
+          }
+        },
+        "CreateTodoLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "CreateTodoLambdaVersionU0YuQ8gh9iu3qEmYb8EwjTWOOm8APBXCfunogKHg"
+          },
+          "Export": {
+            "Name": "sls-task-manager-service-dev-CreateTodoLambdaFunctionQualifiedArn"
+          }
+        },
+        "ListTodosLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "ListTodosLambdaVersionChAHaUdO0iO26y0KJCGkQTOz5bvOER7Bl3p5QFnzk"
+          },
+          "Export": {
+            "Name": "sls-task-manager-service-dev-ListTodosLambdaFunctionQualifiedArn"
+          }
+        },
+        "GetTodoLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "GetTodoLambdaVersioneSmRYfW1tPy1Ftc9nAKUXBZfklXFkEfnAK1RMFBEIU"
+          },
+          "Export": {
+            "Name": "sls-task-manager-service-dev-GetTodoLambdaFunctionQualifiedArn"
+          }
+        },
+        "UpdateTodoLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "UpdateTodoLambdaVersionaHvXiE4SpheXnEE3Zhk2ZlIJYuDkMoxKYGGIWufic"
+          },
+          "Export": {
+            "Name": "sls-task-manager-service-dev-UpdateTodoLambdaFunctionQualifiedArn"
+          }
+        },
+        "DeleteTodoLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "DeleteTodoLambdaVersionFpis6CnBW764xaZpl2p7vMMYP68kWeWbHjPjt6P6e8"
+          },
+          "Export": {
+            "Name": "sls-task-manager-service-dev-DeleteTodoLambdaFunctionQualifiedArn"
+          }
+        },
+        "ListTodosByStatusLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "ListTodosByStatusLambdaVersionNYXiZflIQ66OmuY9yF7OBVCWfvlTAbbhGv6Cp3pNTs"
+          },
+          "Export": {
+            "Name": "sls-task-manager-service-dev-ListTodosByStatusLambdaFunctionQualifiedArn"
+          }
+        },
+        "HttpApiId": {
+          "Description": "Id of the HTTP API",
+          "Value": {
+            "Ref": "HttpApi"
+          },
+          "Export": {
+            "Name": "sls-task-manager-service-dev-HttpApiId"
+          }
+        },
+        "HttpApiUrl": {
+          "Description": "URL of the HTTP API",
+          "Value": {
+            "Fn::Join": [
+              "",
+              [
+                "https://",
+                {
+                  "Ref": "HttpApi"
+                },
+                ".execute-api.",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ".",
+                {
+                  "Ref": "AWS::URLSuffix"
+                }
+              ]
+            ]
+          },
+          "Export": {
+            "Name": "sls-task-manager-service-dev-HttpApiUrl"
+          }
+        }
+      }
+    }
+  }
+}
