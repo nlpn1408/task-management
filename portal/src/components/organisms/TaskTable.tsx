@@ -1,31 +1,31 @@
-import React, { useState, useMemo } from "react";
+import Icon from "@/components/atoms/Icon";
+import { DataTableColumnHeader } from "@/components/molecules/DataTableColumnHeader";
+import { DataTablePagination } from "@/components/molecules/DataTablePagination";
+import DeleteTaskDialog from "@/components/molecules/DeleteTaskDialog";
+import TaskActionsDropdown from "@/components/molecules/TaskActionsDropdown";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import type { Task, TaskStatus } from "@/types";
+import { getStatusBadgeStyleProps } from "@/utils/styleUtils";
 import {
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  getFilteredRowModel,
   useReactTable,
-  type SortingState,
   type ColumnDef,
+  type SortingState,
 } from "@tanstack/react-table";
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-} from "@/components/ui/table";
-import Icon from "@/components/atoms/Icon";
-import { Badge } from "@/components/ui/badge";
 import moment from "moment";
-import { getStatusBadgeStyleProps } from "@/utils/styleUtils";
-import TaskActionsDropdown from "@/components/molecules/TaskActionsDropdown";
-import DeleteTaskDialog from "@/components/molecules/DeleteTaskDialog";
-import { DataTablePagination } from "@/components/molecules/DataTablePagination";
-import { DataTableColumnHeader } from "@/components/molecules/DataTableColumnHeader";
+import React, { useMemo, useState } from "react";
 
 interface TaskTableProps {
   tasks: Task[];

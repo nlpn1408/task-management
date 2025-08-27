@@ -1,13 +1,10 @@
-import React, { useState } from "react";
-import { useTasks } from "@/contexts/TaskContext";
+import Icon from "@/components/atoms/Icon";
 import SearchInput from "@/components/molecules/SearchInput";
 import StatusFilter from "@/components/molecules/StatusFilter";
-import TaskTable from "@/components/organisms/TaskTable";
-import TaskForm, { type TaskFormData } from "@/components/organisms/TaskForm";
 import KanbanBoard from "@/components/organisms/KanbanBoard";
-import Icon from "@/components/atoms/Icon";
+import TaskForm, { type TaskFormData } from "@/components/organisms/TaskForm";
+import TaskTable from "@/components/organisms/TaskTable";
 import { Button } from "@/components/ui/button";
-import type { Task } from "@/types";
 import {
   Dialog,
   DialogContent,
@@ -15,6 +12,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { useTasks } from "@/contexts/TaskContext";
+import {
+  createTask,
+  deleteTask,
+  getTasks,
+  updateTask,
+} from "@/services/taskServices";
+import type { Task } from "@/types";
+import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 type ViewMode = "list" | "kanban";
 
@@ -25,6 +32,18 @@ const HomePage: React.FC = () => {
     statusFilter: selectedStatuses,
     dispatch,
   } = useTasks();
+
+  useEffect(() => {
+    getTasks()
+      .then((tasks) => {
+        console.log("🚀 ~ HomePage ~ tasks:", tasks);
+        dispatch({ type: "SET_TASKS", payload: tasks });
+      })
+      .catch((error) => {
+        console.error("Failed to fetch tasks:", error);
+        toast.error("Failed to load tasks");
+      });
+  }, [dispatch]);
 
   const [isFormDialogOpen, setIsFormDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -61,22 +80,46 @@ const HomePage: React.FC = () => {
 
   const handleFormSubmit = async (data: TaskFormData) => {
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 500));
 
-    if (editingTask) {
-      dispatch({
-        type: "UPDATE_TASK",
-        payload: { ...data, id: editingTask.id },
-      });
-    } else {
-      dispatch({ type: "ADD_TASK", payload: data });
+    try {
+      if (editingTask) {
+        const updatedTask = await updateTask(editingTask.id, {
+          ...editingTask,
+          ...data,
+        });
+        console.log("🚀 ~ handleFormSubmit ~ updatedTask:", updatedTask);
+        toast.success("Task updated successfully");
+        dispatch({
+          type: "UPDATE_TASK",
+          payload: { ...updatedTask, id: editingTask.id },
+        });
+      } else {
+        const newTask = await createTask(data);
+        console.log("🚀 ~ handleFormSubmit ~ newTask:", newTask);
+        toast.success("Task created successfully");
+        dispatch({ type: "ADD_TASK", payload: newTask });
+      }
+    } catch (error) {
+      console.error("🚀 ~ handleFormSubmit ~ error:", error);
+      toast.error(
+        editingTask ? "Failed to update task" : "Failed to create task"
+      );
+    } finally {
+      setIsSubmitting(false);
+      closeTaskDialog();
     }
-    setIsSubmitting(false);
-    closeTaskDialog();
   };
 
-  const handleDeleteTask = (taskIdToDelete: string) => {
-    dispatch({ type: "DELETE_TASK", payload: taskIdToDelete });
+  const handleDeleteTask = async (taskIdToDelete: string) => {
+    try {
+      await deleteTask(taskIdToDelete);
+      console.log("🚀 ~ handleDeleteTask ~ success");
+      toast.success("Task deleted successfully");
+      dispatch({ type: "DELETE_TASK", payload: taskIdToDelete });
+    } catch (error) {
+      console.error("🚀 ~ handleDeleteTask ~ error:", error);
+      toast.error("Failed to delete task");
+    }
   };
 
   const handleSearchChange = (query: string) => {
@@ -85,7 +128,7 @@ const HomePage: React.FC = () => {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-4">Task Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
       <div className="flex flex-col md:flex-row md:flex-wrap justify-between items-center mb-2 gap-4">
         <div className="flex flex-col sm:flex-row sm:flex-wrap items-center gap-4 w-full sm:w-auto">
           <SearchInput
