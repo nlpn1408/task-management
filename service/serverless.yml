@@ -1,4 +1,3 @@
-# "org" ensures this Service is used with the correct Serverless Framework Access Key.
 org: nlpnserverless
 service: task-manager-service
 
@@ -24,8 +23,9 @@ provider:
           - $request.header.authorization
   environment:
     TABLE_NAME: ${self:custom.tableName}
-    USER_POOL_ID: ap-southeast-1_4Fe9nw33I
-    CLIENT_ID: 4na95skm65bele9e295ej6q7u5
+    USER_POOL_ID: ap-southeast-1_1NCIH8mzZ
+    CLIENT_ID: 6q6rpl3gim61bcsbb04tnqnb91
+    USERS_TABLE: ${self:custom.usersTableName} # Sử dụng biến để nhất quán
   iam:
     role:
       statements:
@@ -40,9 +40,18 @@ provider:
           Resource:
             - "arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:custom.tableName}"
             - "arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:custom.tableName}/index/status-index"
+            - "arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:custom.usersTableName}" # Điểm đến bảng Users
+        - Effect: Allow
+          Action:
+            - cognito-idp:AdminCreateUser
+            - cognito-idp:AdminInitiateAuth
+            - cognito-idp:AdminRespondToAuthChallenge
+            - cognito-idp:AdminSetUserPassword
+          Resource: "arn:aws:cognito-idp:${aws:region}:${aws:accountId}:userpool/ap-southeast-1_1NCIH8mzZ"
 
 custom:
   tableName: 'todos-table'
+  usersTableName: 'Users' # Cập nhật thành Users để khớp với bảng thực tế
 
 plugins:
   - serverless-offline
@@ -52,6 +61,41 @@ functions:
     handler: src/authorizer.handler
     role: AuthorizerRole
 
+  defineAuthChallenge:
+    handler: src/triggers/defineAuthChallenge.handler
+  createAuthChallenge:
+    handler: src/triggers/createAuthChallenge.handler
+  verifyAuthChallenge:
+    handler: src/triggers/verifyAuthChallenge.handler
+
+  startLogin:
+    handler: src/controllers/authController.startLogin
+    events:
+      - httpApi:
+          path: /auth/start-login
+          method: post
+
+  verifyOtp:
+    handler: src/controllers/authController.verifyOtp
+    events:
+      - httpApi:
+          path: /auth/verify-otp
+          method: post
+
+  register:
+    handler: src/controllers/authController.registerUser
+    events:
+      - httpApi:
+          path: /auth/register
+          method: post
+
+  signin:
+      handler: src/controllers/authController.signin
+      events:
+        - httpApi:
+            path: /auth/signin
+            method: post
+            
   createTodo:
     handler: src/controllers/todoController.createTodo
     events:
@@ -158,3 +202,17 @@ resources:
             ProvisionedThroughput:
               ReadCapacityUnits: 1
               WriteCapacityUnits: 1
+
+    UsersTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: ${self:custom.usersTableName} # Sử dụng Users
+        AttributeDefinitions:
+          - AttributeName: 'phone'
+            AttributeType: 'S'
+        KeySchema:
+          - AttributeName: 'phone'
+            KeyType: 'HASH'
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1

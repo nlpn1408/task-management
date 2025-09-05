@@ -1,7 +1,7 @@
 {
-  "C:\\My Folder\\New folder\\task-manager-service\\serverless.yml": {
+  "C:\\My Folder\\Source Code\\task-management\\service\\serverless.yml": {
     "versionFramework": "4.18.2",
-    "servicePath": "C:\\My Folder\\New folder\\task-manager-service\\serverless.yml",
+    "servicePath": "C:\\My Folder\\Source Code\\task-management\\service\\serverless.yml",
     "serviceConfigFileName": "serverless.yml",
     "service": {
       "org": "nlpnserverless",
@@ -31,8 +31,9 @@
         },
         "environment": {
           "TABLE_NAME": "todos-table",
-          "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
-          "CLIENT_ID": "4na95skm65bele9e295ej6q7u5"
+          "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+          "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+          "USERS_TABLE": "Users"
         },
         "iam": {
           "role": {
@@ -49,8 +50,19 @@
                 ],
                 "Resource": [
                   "arn:aws:dynamodb:ap-southeast-1:476114140816:table/todos-table",
-                  "arn:aws:dynamodb:ap-southeast-1:476114140816:table/todos-table/index/status-index"
+                  "arn:aws:dynamodb:ap-southeast-1:476114140816:table/todos-table/index/status-index",
+                  "arn:aws:dynamodb:ap-southeast-1:476114140816:table/Users"
                 ]
+              },
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "cognito-idp:AdminCreateUser",
+                  "cognito-idp:AdminInitiateAuth",
+                  "cognito-idp:AdminRespondToAuthChallenge",
+                  "cognito-idp:AdminSetUserPassword"
+                ],
+                "Resource": "arn:aws:cognito-idp:ap-southeast-1:476114140816:userpool/ap-southeast-1_1NCIH8mzZ"
               }
             ]
           }
@@ -64,6 +76,48 @@
               "Type": "AWS::Logs::LogGroup",
               "Properties": {
                 "LogGroupName": "/aws/lambda/task-manager-service-dev-customAuthorizer"
+              }
+            },
+            "DefineAuthChallengeLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/task-manager-service-dev-defineAuthChallenge"
+              }
+            },
+            "CreateAuthChallengeLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/task-manager-service-dev-createAuthChallenge"
+              }
+            },
+            "VerifyAuthChallengeLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/task-manager-service-dev-verifyAuthChallenge"
+              }
+            },
+            "StartLoginLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/task-manager-service-dev-startLogin"
+              }
+            },
+            "VerifyOtpLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/task-manager-service-dev-verifyOtp"
+              }
+            },
+            "RegisterLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/task-manager-service-dev-register"
+              }
+            },
+            "SigninLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/task-manager-service-dev-signin"
               }
             },
             "CreateTodoLogGroup": {
@@ -172,8 +226,19 @@
                           ],
                           "Resource": [
                             "arn:aws:dynamodb:ap-southeast-1:476114140816:table/todos-table",
-                            "arn:aws:dynamodb:ap-southeast-1:476114140816:table/todos-table/index/status-index"
+                            "arn:aws:dynamodb:ap-southeast-1:476114140816:table/todos-table/index/status-index",
+                            "arn:aws:dynamodb:ap-southeast-1:476114140816:table/Users"
                           ]
+                        },
+                        {
+                          "Effect": "Allow",
+                          "Action": [
+                            "cognito-idp:AdminCreateUser",
+                            "cognito-idp:AdminInitiateAuth",
+                            "cognito-idp:AdminRespondToAuthChallenge",
+                            "cognito-idp:AdminSetUserPassword"
+                          ],
+                          "Resource": "arn:aws:cognito-idp:ap-southeast-1:476114140816:userpool/ap-southeast-1_1NCIH8mzZ"
                         }
                       ]
                     }
@@ -200,7 +265,7 @@
               "Properties": {
                 "Code": {
                   "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
-                  "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+                  "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
                 },
                 "Handler": "src/authorizer.handler",
                 "Runtime": "nodejs18.x",
@@ -210,8 +275,9 @@
                 "Environment": {
                   "Variables": {
                     "TABLE_NAME": "todos-table",
-                    "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
-                    "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                    "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                    "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                    "USERS_TABLE": "Users",
                     "NODE_OPTIONS": "--enable-source-maps"
                   }
                 },
@@ -227,12 +293,236 @@
                 "AuthorizerRole"
               ]
             },
+            "DefineAuthChallengeLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+                  "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
+                },
+                "Handler": "src/triggers/defineAuthChallenge.handler",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "task-manager-service-dev-defineAuthChallenge",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Environment": {
+                  "Variables": {
+                    "TABLE_NAME": "todos-table",
+                    "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                    "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                    "USERS_TABLE": "Users",
+                    "NODE_OPTIONS": "--enable-source-maps"
+                  }
+                },
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "DefineAuthChallengeLogGroup"
+              ]
+            },
+            "CreateAuthChallengeLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+                  "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
+                },
+                "Handler": "src/triggers/createAuthChallenge.handler",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "task-manager-service-dev-createAuthChallenge",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Environment": {
+                  "Variables": {
+                    "TABLE_NAME": "todos-table",
+                    "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                    "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                    "USERS_TABLE": "Users",
+                    "NODE_OPTIONS": "--enable-source-maps"
+                  }
+                },
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "CreateAuthChallengeLogGroup"
+              ]
+            },
+            "VerifyAuthChallengeLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+                  "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
+                },
+                "Handler": "src/triggers/verifyAuthChallenge.handler",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "task-manager-service-dev-verifyAuthChallenge",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Environment": {
+                  "Variables": {
+                    "TABLE_NAME": "todos-table",
+                    "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                    "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                    "USERS_TABLE": "Users",
+                    "NODE_OPTIONS": "--enable-source-maps"
+                  }
+                },
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "VerifyAuthChallengeLogGroup"
+              ]
+            },
+            "StartLoginLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+                  "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
+                },
+                "Handler": "src/controllers/authController.startLogin",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "task-manager-service-dev-startLogin",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Environment": {
+                  "Variables": {
+                    "TABLE_NAME": "todos-table",
+                    "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                    "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                    "USERS_TABLE": "Users",
+                    "NODE_OPTIONS": "--enable-source-maps"
+                  }
+                },
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "StartLoginLogGroup"
+              ]
+            },
+            "VerifyOtpLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+                  "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
+                },
+                "Handler": "src/controllers/authController.verifyOtp",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "task-manager-service-dev-verifyOtp",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Environment": {
+                  "Variables": {
+                    "TABLE_NAME": "todos-table",
+                    "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                    "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                    "USERS_TABLE": "Users",
+                    "NODE_OPTIONS": "--enable-source-maps"
+                  }
+                },
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "VerifyOtpLogGroup"
+              ]
+            },
+            "RegisterLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+                  "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
+                },
+                "Handler": "src/controllers/authController.registerUser",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "task-manager-service-dev-register",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Environment": {
+                  "Variables": {
+                    "TABLE_NAME": "todos-table",
+                    "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                    "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                    "USERS_TABLE": "Users",
+                    "NODE_OPTIONS": "--enable-source-maps"
+                  }
+                },
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "RegisterLogGroup"
+              ]
+            },
+            "SigninLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+                  "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
+                },
+                "Handler": "src/controllers/authController.signin",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "task-manager-service-dev-signin",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Environment": {
+                  "Variables": {
+                    "TABLE_NAME": "todos-table",
+                    "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                    "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                    "USERS_TABLE": "Users",
+                    "NODE_OPTIONS": "--enable-source-maps"
+                  }
+                },
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "SigninLogGroup"
+              ]
+            },
             "CreateTodoLambdaFunction": {
               "Type": "AWS::Lambda::Function",
               "Properties": {
                 "Code": {
                   "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
-                  "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+                  "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
                 },
                 "Handler": "src/controllers/todoController.createTodo",
                 "Runtime": "nodejs18.x",
@@ -242,8 +532,9 @@
                 "Environment": {
                   "Variables": {
                     "TABLE_NAME": "todos-table",
-                    "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
-                    "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                    "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                    "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                    "USERS_TABLE": "Users",
                     "NODE_OPTIONS": "--enable-source-maps"
                   }
                 },
@@ -263,7 +554,7 @@
               "Properties": {
                 "Code": {
                   "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
-                  "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+                  "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
                 },
                 "Handler": "src/controllers/todoController.listTodos",
                 "Runtime": "nodejs18.x",
@@ -273,8 +564,9 @@
                 "Environment": {
                   "Variables": {
                     "TABLE_NAME": "todos-table",
-                    "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
-                    "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                    "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                    "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                    "USERS_TABLE": "Users",
                     "NODE_OPTIONS": "--enable-source-maps"
                   }
                 },
@@ -294,7 +586,7 @@
               "Properties": {
                 "Code": {
                   "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
-                  "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+                  "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
                 },
                 "Handler": "src/controllers/todoController.getTodo",
                 "Runtime": "nodejs18.x",
@@ -304,8 +596,9 @@
                 "Environment": {
                   "Variables": {
                     "TABLE_NAME": "todos-table",
-                    "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
-                    "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                    "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                    "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                    "USERS_TABLE": "Users",
                     "NODE_OPTIONS": "--enable-source-maps"
                   }
                 },
@@ -325,7 +618,7 @@
               "Properties": {
                 "Code": {
                   "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
-                  "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+                  "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
                 },
                 "Handler": "src/controllers/todoController.updateTodo",
                 "Runtime": "nodejs18.x",
@@ -335,8 +628,9 @@
                 "Environment": {
                   "Variables": {
                     "TABLE_NAME": "todos-table",
-                    "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
-                    "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                    "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                    "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                    "USERS_TABLE": "Users",
                     "NODE_OPTIONS": "--enable-source-maps"
                   }
                 },
@@ -356,7 +650,7 @@
               "Properties": {
                 "Code": {
                   "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
-                  "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+                  "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
                 },
                 "Handler": "src/controllers/todoController.deleteTodo",
                 "Runtime": "nodejs18.x",
@@ -366,8 +660,9 @@
                 "Environment": {
                   "Variables": {
                     "TABLE_NAME": "todos-table",
-                    "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
-                    "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                    "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                    "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                    "USERS_TABLE": "Users",
                     "NODE_OPTIONS": "--enable-source-maps"
                   }
                 },
@@ -387,7 +682,7 @@
               "Properties": {
                 "Code": {
                   "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
-                  "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+                  "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
                 },
                 "Handler": "src/controllers/todoController.listTodosByStatus",
                 "Runtime": "nodejs18.x",
@@ -397,8 +692,9 @@
                 "Environment": {
                   "Variables": {
                     "TABLE_NAME": "todos-table",
-                    "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
-                    "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                    "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                    "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                    "USERS_TABLE": "Users",
                     "NODE_OPTIONS": "--enable-source-maps"
                   }
                 },
@@ -413,74 +709,144 @@
                 "ListTodosByStatusLogGroup"
               ]
             },
-            "CustomAuthorizerLambdaVersionODfRHskM6mSmqlTyRrd6jMikICaMW5IlKtoZEnQE": {
+            "CustomAuthorizerLambdaVersionzdeDTDSabtFrlnkDp6xJaALri2uHW1ZMYisS06QW98": {
               "Type": "AWS::Lambda::Version",
               "DeletionPolicy": "Retain",
               "Properties": {
                 "FunctionName": {
                   "Ref": "CustomAuthorizerLambdaFunction"
                 },
-                "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+                "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
               }
             },
-            "CreateTodoLambdaVersionU0YuQ8gh9iu3qEmYb8EwjTWOOm8APBXCfunogKHg": {
+            "DefineAuthChallengeLambdaVersioncYIe3IHpu8KLE1J1648UOLF9S1De6iJy9KcSMm3xwI0": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "DefineAuthChallengeLambdaFunction"
+                },
+                "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
+              }
+            },
+            "CreateAuthChallengeLambdaVersionLRrPDIaK0eD8kIztk7lJA6pntKAke5Nejbo6vanG0": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "CreateAuthChallengeLambdaFunction"
+                },
+                "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
+              }
+            },
+            "VerifyAuthChallengeLambdaVersionaSDDzIhnjlElJeNXmnUfitLYuzMq6IhW442EE3vOTHE": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "VerifyAuthChallengeLambdaFunction"
+                },
+                "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
+              }
+            },
+            "StartLoginLambdaVersionFERdTcBpQtjWjADHOY0cOWRZXrceYsvkaCdk6FXpfw": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "StartLoginLambdaFunction"
+                },
+                "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
+              }
+            },
+            "VerifyOtpLambdaVersionrsfXwukIDmErrgMUcCDssh4lKe0pxNtraRsVuIL0sxE": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "VerifyOtpLambdaFunction"
+                },
+                "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
+              }
+            },
+            "RegisterLambdaVersionrPl8g68THEhWID640aaOjbN97M5KvMPvYAyX24w": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "RegisterLambdaFunction"
+                },
+                "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
+              }
+            },
+            "SigninLambdaVersion2PiVHJH6xaz3mS2QcSUCABqOiA8t9TL8eJoZGSqLu2M": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "SigninLambdaFunction"
+                },
+                "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
+              }
+            },
+            "CreateTodoLambdaVersionMt2HW3KRB7axfHhl2QfBtLy5YvHDBbrXAXxzJ1Leupc": {
               "Type": "AWS::Lambda::Version",
               "DeletionPolicy": "Retain",
               "Properties": {
                 "FunctionName": {
                   "Ref": "CreateTodoLambdaFunction"
                 },
-                "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+                "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
               }
             },
-            "ListTodosLambdaVersionChAHaUdO0iO26y0KJCGkQTOz5bvOER7Bl3p5QFnzk": {
+            "ListTodosLambdaVersionOreAZdH3ewmmduuwcqXpI8RiYiJeKBt7yZsPfAzC6c": {
               "Type": "AWS::Lambda::Version",
               "DeletionPolicy": "Retain",
               "Properties": {
                 "FunctionName": {
                   "Ref": "ListTodosLambdaFunction"
                 },
-                "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+                "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
               }
             },
-            "GetTodoLambdaVersioneSmRYfW1tPy1Ftc9nAKUXBZfklXFkEfnAK1RMFBEIU": {
+            "GetTodoLambdaVersionbhLkT5qOIicpCkIgFBziiAw38IXzvqjD7pwDj97VrE": {
               "Type": "AWS::Lambda::Version",
               "DeletionPolicy": "Retain",
               "Properties": {
                 "FunctionName": {
                   "Ref": "GetTodoLambdaFunction"
                 },
-                "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+                "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
               }
             },
-            "UpdateTodoLambdaVersionaHvXiE4SpheXnEE3Zhk2ZlIJYuDkMoxKYGGIWufic": {
+            "UpdateTodoLambdaVersion4XG4X2rzSsOqAozJKHgD06r0nCaYrQXjDbgjTcMmVeI": {
               "Type": "AWS::Lambda::Version",
               "DeletionPolicy": "Retain",
               "Properties": {
                 "FunctionName": {
                   "Ref": "UpdateTodoLambdaFunction"
                 },
-                "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+                "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
               }
             },
-            "DeleteTodoLambdaVersionFpis6CnBW764xaZpl2p7vMMYP68kWeWbHjPjt6P6e8": {
+            "DeleteTodoLambdaVersionLK7nyy9zjWAXtwZemaM0c9MhspLs9fMCzgfhfp59n0": {
               "Type": "AWS::Lambda::Version",
               "DeletionPolicy": "Retain",
               "Properties": {
                 "FunctionName": {
                   "Ref": "DeleteTodoLambdaFunction"
                 },
-                "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+                "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
               }
             },
-            "ListTodosByStatusLambdaVersionNYXiZflIQ66OmuY9yF7OBVCWfvlTAbbhGv6Cp3pNTs": {
+            "ListTodosByStatusLambdaVersionboZe3UcO7M2HYaF0DTnO8MhCP7xO9NMsMLEv4T4": {
               "Type": "AWS::Lambda::Version",
               "DeletionPolicy": "Retain",
               "Properties": {
                 "FunctionName": {
                   "Ref": "ListTodosByStatusLambdaFunction"
                 },
-                "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+                "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
               }
             },
             "HttpApi": {
@@ -601,6 +967,306 @@
                   ]
                 }
               }
+            },
+            "StartLoginLambdaPermissionHttpApi": {
+              "Type": "AWS::Lambda::Permission",
+              "Properties": {
+                "FunctionName": {
+                  "Fn::GetAtt": [
+                    "StartLoginLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "HttpApi"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              }
+            },
+            "HttpApiIntegrationStartLogin": {
+              "Type": "AWS::ApiGatewayV2::Integration",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "IntegrationType": "AWS_PROXY",
+                "IntegrationUri": {
+                  "Fn::GetAtt": [
+                    "StartLoginLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "PayloadFormatVersion": "2.0",
+                "TimeoutInMillis": 30000
+              }
+            },
+            "HttpApiRoutePostAuthStartDashlogin": {
+              "Type": "AWS::ApiGatewayV2::Route",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "RouteKey": "POST /auth/start-login",
+                "Target": {
+                  "Fn::Join": [
+                    "/",
+                    [
+                      "integrations",
+                      {
+                        "Ref": "HttpApiIntegrationStartLogin"
+                      }
+                    ]
+                  ]
+                }
+              },
+              "DependsOn": "HttpApiIntegrationStartLogin"
+            },
+            "VerifyOtpLambdaPermissionHttpApi": {
+              "Type": "AWS::Lambda::Permission",
+              "Properties": {
+                "FunctionName": {
+                  "Fn::GetAtt": [
+                    "VerifyOtpLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "HttpApi"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              }
+            },
+            "HttpApiIntegrationVerifyOtp": {
+              "Type": "AWS::ApiGatewayV2::Integration",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "IntegrationType": "AWS_PROXY",
+                "IntegrationUri": {
+                  "Fn::GetAtt": [
+                    "VerifyOtpLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "PayloadFormatVersion": "2.0",
+                "TimeoutInMillis": 30000
+              }
+            },
+            "HttpApiRoutePostAuthVerifyDashotp": {
+              "Type": "AWS::ApiGatewayV2::Route",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "RouteKey": "POST /auth/verify-otp",
+                "Target": {
+                  "Fn::Join": [
+                    "/",
+                    [
+                      "integrations",
+                      {
+                        "Ref": "HttpApiIntegrationVerifyOtp"
+                      }
+                    ]
+                  ]
+                }
+              },
+              "DependsOn": "HttpApiIntegrationVerifyOtp"
+            },
+            "RegisterLambdaPermissionHttpApi": {
+              "Type": "AWS::Lambda::Permission",
+              "Properties": {
+                "FunctionName": {
+                  "Fn::GetAtt": [
+                    "RegisterLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "HttpApi"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              }
+            },
+            "HttpApiIntegrationRegister": {
+              "Type": "AWS::ApiGatewayV2::Integration",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "IntegrationType": "AWS_PROXY",
+                "IntegrationUri": {
+                  "Fn::GetAtt": [
+                    "RegisterLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "PayloadFormatVersion": "2.0",
+                "TimeoutInMillis": 30000
+              }
+            },
+            "HttpApiRoutePostAuthRegister": {
+              "Type": "AWS::ApiGatewayV2::Route",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "RouteKey": "POST /auth/register",
+                "Target": {
+                  "Fn::Join": [
+                    "/",
+                    [
+                      "integrations",
+                      {
+                        "Ref": "HttpApiIntegrationRegister"
+                      }
+                    ]
+                  ]
+                }
+              },
+              "DependsOn": "HttpApiIntegrationRegister"
+            },
+            "SigninLambdaPermissionHttpApi": {
+              "Type": "AWS::Lambda::Permission",
+              "Properties": {
+                "FunctionName": {
+                  "Fn::GetAtt": [
+                    "SigninLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "HttpApi"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              }
+            },
+            "HttpApiIntegrationSignin": {
+              "Type": "AWS::ApiGatewayV2::Integration",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "IntegrationType": "AWS_PROXY",
+                "IntegrationUri": {
+                  "Fn::GetAtt": [
+                    "SigninLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "PayloadFormatVersion": "2.0",
+                "TimeoutInMillis": 30000
+              }
+            },
+            "HttpApiRoutePostAuthSignin": {
+              "Type": "AWS::ApiGatewayV2::Route",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "RouteKey": "POST /auth/signin",
+                "Target": {
+                  "Fn::Join": [
+                    "/",
+                    [
+                      "integrations",
+                      {
+                        "Ref": "HttpApiIntegrationSignin"
+                      }
+                    ]
+                  ]
+                }
+              },
+              "DependsOn": "HttpApiIntegrationSignin"
             },
             "CreateTodoLambdaPermissionHttpApi": {
               "Type": "AWS::Lambda::Permission",
@@ -1160,6 +1826,28 @@
                   }
                 ]
               }
+            },
+            "UsersTable": {
+              "Type": "AWS::DynamoDB::Table",
+              "Properties": {
+                "TableName": "Users",
+                "AttributeDefinitions": [
+                  {
+                    "AttributeName": "phone",
+                    "AttributeType": "S"
+                  }
+                ],
+                "KeySchema": [
+                  {
+                    "AttributeName": "phone",
+                    "KeyType": "HASH"
+                  }
+                ],
+                "ProvisionedThroughput": {
+                  "ReadCapacityUnits": 1,
+                  "WriteCapacityUnits": 1
+                }
+              }
             }
           },
           "Outputs": {
@@ -1172,16 +1860,79 @@
             "CustomAuthorizerLambdaFunctionQualifiedArn": {
               "Description": "Current Lambda function version",
               "Value": {
-                "Ref": "CustomAuthorizerLambdaVersionODfRHskM6mSmqlTyRrd6jMikICaMW5IlKtoZEnQE"
+                "Ref": "CustomAuthorizerLambdaVersionzdeDTDSabtFrlnkDp6xJaALri2uHW1ZMYisS06QW98"
               },
               "Export": {
                 "Name": "sls-task-manager-service-dev-CustomAuthorizerLambdaFunctionQualifiedArn"
               }
             },
+            "DefineAuthChallengeLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "DefineAuthChallengeLambdaVersioncYIe3IHpu8KLE1J1648UOLF9S1De6iJy9KcSMm3xwI0"
+              },
+              "Export": {
+                "Name": "sls-task-manager-service-dev-DefineAuthChallengeLambdaFunctionQualifiedArn"
+              }
+            },
+            "CreateAuthChallengeLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "CreateAuthChallengeLambdaVersionLRrPDIaK0eD8kIztk7lJA6pntKAke5Nejbo6vanG0"
+              },
+              "Export": {
+                "Name": "sls-task-manager-service-dev-CreateAuthChallengeLambdaFunctionQualifiedArn"
+              }
+            },
+            "VerifyAuthChallengeLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "VerifyAuthChallengeLambdaVersionaSDDzIhnjlElJeNXmnUfitLYuzMq6IhW442EE3vOTHE"
+              },
+              "Export": {
+                "Name": "sls-task-manager-service-dev-VerifyAuthChallengeLambdaFunctionQualifiedArn"
+              }
+            },
+            "StartLoginLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "StartLoginLambdaVersionFERdTcBpQtjWjADHOY0cOWRZXrceYsvkaCdk6FXpfw"
+              },
+              "Export": {
+                "Name": "sls-task-manager-service-dev-StartLoginLambdaFunctionQualifiedArn"
+              }
+            },
+            "VerifyOtpLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "VerifyOtpLambdaVersionrsfXwukIDmErrgMUcCDssh4lKe0pxNtraRsVuIL0sxE"
+              },
+              "Export": {
+                "Name": "sls-task-manager-service-dev-VerifyOtpLambdaFunctionQualifiedArn"
+              }
+            },
+            "RegisterLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "RegisterLambdaVersionrPl8g68THEhWID640aaOjbN97M5KvMPvYAyX24w"
+              },
+              "Export": {
+                "Name": "sls-task-manager-service-dev-RegisterLambdaFunctionQualifiedArn"
+              }
+            },
+            "SigninLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "SigninLambdaVersion2PiVHJH6xaz3mS2QcSUCABqOiA8t9TL8eJoZGSqLu2M"
+              },
+              "Export": {
+                "Name": "sls-task-manager-service-dev-SigninLambdaFunctionQualifiedArn"
+              }
+            },
             "CreateTodoLambdaFunctionQualifiedArn": {
               "Description": "Current Lambda function version",
               "Value": {
-                "Ref": "CreateTodoLambdaVersionU0YuQ8gh9iu3qEmYb8EwjTWOOm8APBXCfunogKHg"
+                "Ref": "CreateTodoLambdaVersionMt2HW3KRB7axfHhl2QfBtLy5YvHDBbrXAXxzJ1Leupc"
               },
               "Export": {
                 "Name": "sls-task-manager-service-dev-CreateTodoLambdaFunctionQualifiedArn"
@@ -1190,7 +1941,7 @@
             "ListTodosLambdaFunctionQualifiedArn": {
               "Description": "Current Lambda function version",
               "Value": {
-                "Ref": "ListTodosLambdaVersionChAHaUdO0iO26y0KJCGkQTOz5bvOER7Bl3p5QFnzk"
+                "Ref": "ListTodosLambdaVersionOreAZdH3ewmmduuwcqXpI8RiYiJeKBt7yZsPfAzC6c"
               },
               "Export": {
                 "Name": "sls-task-manager-service-dev-ListTodosLambdaFunctionQualifiedArn"
@@ -1199,7 +1950,7 @@
             "GetTodoLambdaFunctionQualifiedArn": {
               "Description": "Current Lambda function version",
               "Value": {
-                "Ref": "GetTodoLambdaVersioneSmRYfW1tPy1Ftc9nAKUXBZfklXFkEfnAK1RMFBEIU"
+                "Ref": "GetTodoLambdaVersionbhLkT5qOIicpCkIgFBziiAw38IXzvqjD7pwDj97VrE"
               },
               "Export": {
                 "Name": "sls-task-manager-service-dev-GetTodoLambdaFunctionQualifiedArn"
@@ -1208,7 +1959,7 @@
             "UpdateTodoLambdaFunctionQualifiedArn": {
               "Description": "Current Lambda function version",
               "Value": {
-                "Ref": "UpdateTodoLambdaVersionaHvXiE4SpheXnEE3Zhk2ZlIJYuDkMoxKYGGIWufic"
+                "Ref": "UpdateTodoLambdaVersion4XG4X2rzSsOqAozJKHgD06r0nCaYrQXjDbgjTcMmVeI"
               },
               "Export": {
                 "Name": "sls-task-manager-service-dev-UpdateTodoLambdaFunctionQualifiedArn"
@@ -1217,7 +1968,7 @@
             "DeleteTodoLambdaFunctionQualifiedArn": {
               "Description": "Current Lambda function version",
               "Value": {
-                "Ref": "DeleteTodoLambdaVersionFpis6CnBW764xaZpl2p7vMMYP68kWeWbHjPjt6P6e8"
+                "Ref": "DeleteTodoLambdaVersionLK7nyy9zjWAXtwZemaM0c9MhspLs9fMCzgfhfp59n0"
               },
               "Export": {
                 "Name": "sls-task-manager-service-dev-DeleteTodoLambdaFunctionQualifiedArn"
@@ -1226,7 +1977,7 @@
             "ListTodosByStatusLambdaFunctionQualifiedArn": {
               "Description": "Current Lambda function version",
               "Value": {
-                "Ref": "ListTodosByStatusLambdaVersionNYXiZflIQ66OmuY9yF7OBVCWfvlTAbbhGv6Cp3pNTs"
+                "Ref": "ListTodosByStatusLambdaVersionboZe3UcO7M2HYaF0DTnO8MhCP7xO9NMsMLEv4T4"
               },
               "Export": {
                 "Name": "sls-task-manager-service-dev-ListTodosByStatusLambdaFunctionQualifiedArn"
@@ -1271,7 +2022,8 @@
         "vpc": {}
       },
       "custom": {
-        "tableName": "todos-table"
+        "tableName": "todos-table",
+        "usersTableName": "Users"
       },
       "plugins": [
         "serverless-offline"
@@ -1290,7 +2042,141 @@
           "timeout": 6,
           "runtime": "nodejs18.x",
           "vpc": {},
-          "versionLogicalId": "CustomAuthorizerLambdaVersionODfRHskM6mSmqlTyRrd6jMikICaMW5IlKtoZEnQE"
+          "versionLogicalId": "CustomAuthorizerLambdaVersionzdeDTDSabtFrlnkDp6xJaALri2uHW1ZMYisS06QW98"
+        },
+        "defineAuthChallenge": {
+          "handler": "src/triggers/defineAuthChallenge.handler",
+          "events": [],
+          "name": "task-manager-service-dev-defineAuthChallenge",
+          "environment": {
+            "NODE_OPTIONS": "--enable-source-maps"
+          },
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "DefineAuthChallengeLambdaVersioncYIe3IHpu8KLE1J1648UOLF9S1De6iJy9KcSMm3xwI0"
+        },
+        "createAuthChallenge": {
+          "handler": "src/triggers/createAuthChallenge.handler",
+          "events": [],
+          "name": "task-manager-service-dev-createAuthChallenge",
+          "environment": {
+            "NODE_OPTIONS": "--enable-source-maps"
+          },
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "CreateAuthChallengeLambdaVersionLRrPDIaK0eD8kIztk7lJA6pntKAke5Nejbo6vanG0"
+        },
+        "verifyAuthChallenge": {
+          "handler": "src/triggers/verifyAuthChallenge.handler",
+          "events": [],
+          "name": "task-manager-service-dev-verifyAuthChallenge",
+          "environment": {
+            "NODE_OPTIONS": "--enable-source-maps"
+          },
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "VerifyAuthChallengeLambdaVersionaSDDzIhnjlElJeNXmnUfitLYuzMq6IhW442EE3vOTHE"
+        },
+        "startLogin": {
+          "handler": "src/controllers/authController.startLogin",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/auth/start-login",
+                "method": "post"
+              },
+              "resolvedMethod": "POST",
+              "resolvedPath": "/auth/start-login"
+            }
+          ],
+          "name": "task-manager-service-dev-startLogin",
+          "environment": {
+            "NODE_OPTIONS": "--enable-source-maps"
+          },
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "StartLoginLambdaVersionFERdTcBpQtjWjADHOY0cOWRZXrceYsvkaCdk6FXpfw"
+        },
+        "verifyOtp": {
+          "handler": "src/controllers/authController.verifyOtp",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/auth/verify-otp",
+                "method": "post"
+              },
+              "resolvedMethod": "POST",
+              "resolvedPath": "/auth/verify-otp"
+            }
+          ],
+          "name": "task-manager-service-dev-verifyOtp",
+          "environment": {
+            "NODE_OPTIONS": "--enable-source-maps"
+          },
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "VerifyOtpLambdaVersionrsfXwukIDmErrgMUcCDssh4lKe0pxNtraRsVuIL0sxE"
+        },
+        "register": {
+          "handler": "src/controllers/authController.registerUser",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/auth/register",
+                "method": "post"
+              },
+              "resolvedMethod": "POST",
+              "resolvedPath": "/auth/register"
+            }
+          ],
+          "name": "task-manager-service-dev-register",
+          "environment": {
+            "NODE_OPTIONS": "--enable-source-maps"
+          },
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "RegisterLambdaVersionrPl8g68THEhWID640aaOjbN97M5KvMPvYAyX24w"
+        },
+        "signin": {
+          "handler": "src/controllers/authController.signin",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/auth/signin",
+                "method": "post"
+              },
+              "resolvedMethod": "POST",
+              "resolvedPath": "/auth/signin"
+            }
+          ],
+          "name": "task-manager-service-dev-signin",
+          "environment": {
+            "NODE_OPTIONS": "--enable-source-maps"
+          },
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "SigninLambdaVersion2PiVHJH6xaz3mS2QcSUCABqOiA8t9TL8eJoZGSqLu2M"
         },
         "createTodo": {
           "handler": "src/controllers/todoController.createTodo",
@@ -1316,7 +2202,7 @@
           "timeout": 6,
           "runtime": "nodejs18.x",
           "vpc": {},
-          "versionLogicalId": "CreateTodoLambdaVersionU0YuQ8gh9iu3qEmYb8EwjTWOOm8APBXCfunogKHg"
+          "versionLogicalId": "CreateTodoLambdaVersionMt2HW3KRB7axfHhl2QfBtLy5YvHDBbrXAXxzJ1Leupc"
         },
         "listTodos": {
           "handler": "src/controllers/todoController.listTodos",
@@ -1342,7 +2228,7 @@
           "timeout": 6,
           "runtime": "nodejs18.x",
           "vpc": {},
-          "versionLogicalId": "ListTodosLambdaVersionChAHaUdO0iO26y0KJCGkQTOz5bvOER7Bl3p5QFnzk"
+          "versionLogicalId": "ListTodosLambdaVersionOreAZdH3ewmmduuwcqXpI8RiYiJeKBt7yZsPfAzC6c"
         },
         "getTodo": {
           "handler": "src/controllers/todoController.getTodo",
@@ -1368,7 +2254,7 @@
           "timeout": 6,
           "runtime": "nodejs18.x",
           "vpc": {},
-          "versionLogicalId": "GetTodoLambdaVersioneSmRYfW1tPy1Ftc9nAKUXBZfklXFkEfnAK1RMFBEIU"
+          "versionLogicalId": "GetTodoLambdaVersionbhLkT5qOIicpCkIgFBziiAw38IXzvqjD7pwDj97VrE"
         },
         "updateTodo": {
           "handler": "src/controllers/todoController.updateTodo",
@@ -1394,7 +2280,7 @@
           "timeout": 6,
           "runtime": "nodejs18.x",
           "vpc": {},
-          "versionLogicalId": "UpdateTodoLambdaVersionaHvXiE4SpheXnEE3Zhk2ZlIJYuDkMoxKYGGIWufic"
+          "versionLogicalId": "UpdateTodoLambdaVersion4XG4X2rzSsOqAozJKHgD06r0nCaYrQXjDbgjTcMmVeI"
         },
         "deleteTodo": {
           "handler": "src/controllers/todoController.deleteTodo",
@@ -1420,7 +2306,7 @@
           "timeout": 6,
           "runtime": "nodejs18.x",
           "vpc": {},
-          "versionLogicalId": "DeleteTodoLambdaVersionFpis6CnBW764xaZpl2p7vMMYP68kWeWbHjPjt6P6e8"
+          "versionLogicalId": "DeleteTodoLambdaVersionLK7nyy9zjWAXtwZemaM0c9MhspLs9fMCzgfhfp59n0"
         },
         "listTodosByStatus": {
           "handler": "src/controllers/todoController.listTodosByStatus",
@@ -1446,7 +2332,7 @@
           "timeout": 6,
           "runtime": "nodejs18.x",
           "vpc": {},
-          "versionLogicalId": "ListTodosByStatusLambdaVersionNYXiZflIQ66OmuY9yF7OBVCWfvlTAbbhGv6Cp3pNTs"
+          "versionLogicalId": "ListTodosByStatusLambdaVersionboZe3UcO7M2HYaF0DTnO8MhCP7xO9NMsMLEv4T4"
         }
       },
       "resources": {
@@ -1535,6 +2421,28 @@
                 }
               ]
             }
+          },
+          "UsersTable": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+              "TableName": "Users",
+              "AttributeDefinitions": [
+                {
+                  "AttributeName": "phone",
+                  "AttributeType": "S"
+                }
+              ],
+              "KeySchema": [
+                {
+                  "AttributeName": "phone",
+                  "KeyType": "HASH"
+                }
+              ],
+              "ProvisionedThroughput": {
+                "ReadCapacityUnits": 1,
+                "WriteCapacityUnits": 1
+              }
+            }
           }
         },
         "Outputs": {}
@@ -1564,8 +2472,9 @@
       },
       "environment": {
         "TABLE_NAME": "todos-table",
-        "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
-        "CLIENT_ID": "4na95skm65bele9e295ej6q7u5"
+        "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+        "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+        "USERS_TABLE": "Users"
       },
       "iam": {
         "role": {
@@ -1582,8 +2491,19 @@
               ],
               "Resource": [
                 "arn:aws:dynamodb:ap-southeast-1:476114140816:table/todos-table",
-                "arn:aws:dynamodb:ap-southeast-1:476114140816:table/todos-table/index/status-index"
+                "arn:aws:dynamodb:ap-southeast-1:476114140816:table/todos-table/index/status-index",
+                "arn:aws:dynamodb:ap-southeast-1:476114140816:table/Users"
               ]
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "cognito-idp:AdminCreateUser",
+                "cognito-idp:AdminInitiateAuth",
+                "cognito-idp:AdminRespondToAuthChallenge",
+                "cognito-idp:AdminSetUserPassword"
+              ],
+              "Resource": "arn:aws:cognito-idp:ap-southeast-1:476114140816:userpool/ap-southeast-1_1NCIH8mzZ"
             }
           ]
         }
@@ -1597,6 +2517,48 @@
             "Type": "AWS::Logs::LogGroup",
             "Properties": {
               "LogGroupName": "/aws/lambda/task-manager-service-dev-customAuthorizer"
+            }
+          },
+          "DefineAuthChallengeLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/task-manager-service-dev-defineAuthChallenge"
+            }
+          },
+          "CreateAuthChallengeLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/task-manager-service-dev-createAuthChallenge"
+            }
+          },
+          "VerifyAuthChallengeLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/task-manager-service-dev-verifyAuthChallenge"
+            }
+          },
+          "StartLoginLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/task-manager-service-dev-startLogin"
+            }
+          },
+          "VerifyOtpLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/task-manager-service-dev-verifyOtp"
+            }
+          },
+          "RegisterLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/task-manager-service-dev-register"
+            }
+          },
+          "SigninLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/task-manager-service-dev-signin"
             }
           },
           "CreateTodoLogGroup": {
@@ -1705,8 +2667,19 @@
                         ],
                         "Resource": [
                           "arn:aws:dynamodb:ap-southeast-1:476114140816:table/todos-table",
-                          "arn:aws:dynamodb:ap-southeast-1:476114140816:table/todos-table/index/status-index"
+                          "arn:aws:dynamodb:ap-southeast-1:476114140816:table/todos-table/index/status-index",
+                          "arn:aws:dynamodb:ap-southeast-1:476114140816:table/Users"
                         ]
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "cognito-idp:AdminCreateUser",
+                          "cognito-idp:AdminInitiateAuth",
+                          "cognito-idp:AdminRespondToAuthChallenge",
+                          "cognito-idp:AdminSetUserPassword"
+                        ],
+                        "Resource": "arn:aws:cognito-idp:ap-southeast-1:476114140816:userpool/ap-southeast-1_1NCIH8mzZ"
                       }
                     ]
                   }
@@ -1733,7 +2706,7 @@
             "Properties": {
               "Code": {
                 "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
-                "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+                "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
               },
               "Handler": "src/authorizer.handler",
               "Runtime": "nodejs18.x",
@@ -1743,8 +2716,9 @@
               "Environment": {
                 "Variables": {
                   "TABLE_NAME": "todos-table",
-                  "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
-                  "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                  "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                  "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                  "USERS_TABLE": "Users",
                   "NODE_OPTIONS": "--enable-source-maps"
                 }
               },
@@ -1760,12 +2734,236 @@
               "AuthorizerRole"
             ]
           },
+          "DefineAuthChallengeLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+                "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
+              },
+              "Handler": "src/triggers/defineAuthChallenge.handler",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "task-manager-service-dev-defineAuthChallenge",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "TABLE_NAME": "todos-table",
+                  "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                  "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                  "USERS_TABLE": "Users",
+                  "NODE_OPTIONS": "--enable-source-maps"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "DefineAuthChallengeLogGroup"
+            ]
+          },
+          "CreateAuthChallengeLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+                "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
+              },
+              "Handler": "src/triggers/createAuthChallenge.handler",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "task-manager-service-dev-createAuthChallenge",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "TABLE_NAME": "todos-table",
+                  "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                  "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                  "USERS_TABLE": "Users",
+                  "NODE_OPTIONS": "--enable-source-maps"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "CreateAuthChallengeLogGroup"
+            ]
+          },
+          "VerifyAuthChallengeLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+                "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
+              },
+              "Handler": "src/triggers/verifyAuthChallenge.handler",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "task-manager-service-dev-verifyAuthChallenge",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "TABLE_NAME": "todos-table",
+                  "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                  "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                  "USERS_TABLE": "Users",
+                  "NODE_OPTIONS": "--enable-source-maps"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "VerifyAuthChallengeLogGroup"
+            ]
+          },
+          "StartLoginLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+                "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
+              },
+              "Handler": "src/controllers/authController.startLogin",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "task-manager-service-dev-startLogin",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "TABLE_NAME": "todos-table",
+                  "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                  "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                  "USERS_TABLE": "Users",
+                  "NODE_OPTIONS": "--enable-source-maps"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "StartLoginLogGroup"
+            ]
+          },
+          "VerifyOtpLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+                "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
+              },
+              "Handler": "src/controllers/authController.verifyOtp",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "task-manager-service-dev-verifyOtp",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "TABLE_NAME": "todos-table",
+                  "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                  "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                  "USERS_TABLE": "Users",
+                  "NODE_OPTIONS": "--enable-source-maps"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "VerifyOtpLogGroup"
+            ]
+          },
+          "RegisterLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+                "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
+              },
+              "Handler": "src/controllers/authController.registerUser",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "task-manager-service-dev-register",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "TABLE_NAME": "todos-table",
+                  "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                  "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                  "USERS_TABLE": "Users",
+                  "NODE_OPTIONS": "--enable-source-maps"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "RegisterLogGroup"
+            ]
+          },
+          "SigninLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+                "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
+              },
+              "Handler": "src/controllers/authController.signin",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "task-manager-service-dev-signin",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "TABLE_NAME": "todos-table",
+                  "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                  "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                  "USERS_TABLE": "Users",
+                  "NODE_OPTIONS": "--enable-source-maps"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "SigninLogGroup"
+            ]
+          },
           "CreateTodoLambdaFunction": {
             "Type": "AWS::Lambda::Function",
             "Properties": {
               "Code": {
                 "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
-                "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+                "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
               },
               "Handler": "src/controllers/todoController.createTodo",
               "Runtime": "nodejs18.x",
@@ -1775,8 +2973,9 @@
               "Environment": {
                 "Variables": {
                   "TABLE_NAME": "todos-table",
-                  "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
-                  "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                  "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                  "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                  "USERS_TABLE": "Users",
                   "NODE_OPTIONS": "--enable-source-maps"
                 }
               },
@@ -1796,7 +2995,7 @@
             "Properties": {
               "Code": {
                 "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
-                "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+                "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
               },
               "Handler": "src/controllers/todoController.listTodos",
               "Runtime": "nodejs18.x",
@@ -1806,8 +3005,9 @@
               "Environment": {
                 "Variables": {
                   "TABLE_NAME": "todos-table",
-                  "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
-                  "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                  "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                  "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                  "USERS_TABLE": "Users",
                   "NODE_OPTIONS": "--enable-source-maps"
                 }
               },
@@ -1827,7 +3027,7 @@
             "Properties": {
               "Code": {
                 "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
-                "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+                "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
               },
               "Handler": "src/controllers/todoController.getTodo",
               "Runtime": "nodejs18.x",
@@ -1837,8 +3037,9 @@
               "Environment": {
                 "Variables": {
                   "TABLE_NAME": "todos-table",
-                  "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
-                  "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                  "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                  "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                  "USERS_TABLE": "Users",
                   "NODE_OPTIONS": "--enable-source-maps"
                 }
               },
@@ -1858,7 +3059,7 @@
             "Properties": {
               "Code": {
                 "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
-                "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+                "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
               },
               "Handler": "src/controllers/todoController.updateTodo",
               "Runtime": "nodejs18.x",
@@ -1868,8 +3069,9 @@
               "Environment": {
                 "Variables": {
                   "TABLE_NAME": "todos-table",
-                  "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
-                  "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                  "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                  "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                  "USERS_TABLE": "Users",
                   "NODE_OPTIONS": "--enable-source-maps"
                 }
               },
@@ -1889,7 +3091,7 @@
             "Properties": {
               "Code": {
                 "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
-                "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+                "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
               },
               "Handler": "src/controllers/todoController.deleteTodo",
               "Runtime": "nodejs18.x",
@@ -1899,8 +3101,9 @@
               "Environment": {
                 "Variables": {
                   "TABLE_NAME": "todos-table",
-                  "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
-                  "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                  "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                  "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                  "USERS_TABLE": "Users",
                   "NODE_OPTIONS": "--enable-source-maps"
                 }
               },
@@ -1920,7 +3123,7 @@
             "Properties": {
               "Code": {
                 "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
-                "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+                "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
               },
               "Handler": "src/controllers/todoController.listTodosByStatus",
               "Runtime": "nodejs18.x",
@@ -1930,8 +3133,9 @@
               "Environment": {
                 "Variables": {
                   "TABLE_NAME": "todos-table",
-                  "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
-                  "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                  "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                  "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                  "USERS_TABLE": "Users",
                   "NODE_OPTIONS": "--enable-source-maps"
                 }
               },
@@ -1946,74 +3150,144 @@
               "ListTodosByStatusLogGroup"
             ]
           },
-          "CustomAuthorizerLambdaVersionODfRHskM6mSmqlTyRrd6jMikICaMW5IlKtoZEnQE": {
+          "CustomAuthorizerLambdaVersionzdeDTDSabtFrlnkDp6xJaALri2uHW1ZMYisS06QW98": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "CustomAuthorizerLambdaFunction"
               },
-              "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+              "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
             }
           },
-          "CreateTodoLambdaVersionU0YuQ8gh9iu3qEmYb8EwjTWOOm8APBXCfunogKHg": {
+          "DefineAuthChallengeLambdaVersioncYIe3IHpu8KLE1J1648UOLF9S1De6iJy9KcSMm3xwI0": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "DefineAuthChallengeLambdaFunction"
+              },
+              "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
+            }
+          },
+          "CreateAuthChallengeLambdaVersionLRrPDIaK0eD8kIztk7lJA6pntKAke5Nejbo6vanG0": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "CreateAuthChallengeLambdaFunction"
+              },
+              "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
+            }
+          },
+          "VerifyAuthChallengeLambdaVersionaSDDzIhnjlElJeNXmnUfitLYuzMq6IhW442EE3vOTHE": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "VerifyAuthChallengeLambdaFunction"
+              },
+              "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
+            }
+          },
+          "StartLoginLambdaVersionFERdTcBpQtjWjADHOY0cOWRZXrceYsvkaCdk6FXpfw": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "StartLoginLambdaFunction"
+              },
+              "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
+            }
+          },
+          "VerifyOtpLambdaVersionrsfXwukIDmErrgMUcCDssh4lKe0pxNtraRsVuIL0sxE": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "VerifyOtpLambdaFunction"
+              },
+              "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
+            }
+          },
+          "RegisterLambdaVersionrPl8g68THEhWID640aaOjbN97M5KvMPvYAyX24w": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "RegisterLambdaFunction"
+              },
+              "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
+            }
+          },
+          "SigninLambdaVersion2PiVHJH6xaz3mS2QcSUCABqOiA8t9TL8eJoZGSqLu2M": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "SigninLambdaFunction"
+              },
+              "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
+            }
+          },
+          "CreateTodoLambdaVersionMt2HW3KRB7axfHhl2QfBtLy5YvHDBbrXAXxzJ1Leupc": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "CreateTodoLambdaFunction"
               },
-              "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+              "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
             }
           },
-          "ListTodosLambdaVersionChAHaUdO0iO26y0KJCGkQTOz5bvOER7Bl3p5QFnzk": {
+          "ListTodosLambdaVersionOreAZdH3ewmmduuwcqXpI8RiYiJeKBt7yZsPfAzC6c": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "ListTodosLambdaFunction"
               },
-              "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+              "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
             }
           },
-          "GetTodoLambdaVersioneSmRYfW1tPy1Ftc9nAKUXBZfklXFkEfnAK1RMFBEIU": {
+          "GetTodoLambdaVersionbhLkT5qOIicpCkIgFBziiAw38IXzvqjD7pwDj97VrE": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "GetTodoLambdaFunction"
               },
-              "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+              "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
             }
           },
-          "UpdateTodoLambdaVersionaHvXiE4SpheXnEE3Zhk2ZlIJYuDkMoxKYGGIWufic": {
+          "UpdateTodoLambdaVersion4XG4X2rzSsOqAozJKHgD06r0nCaYrQXjDbgjTcMmVeI": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "UpdateTodoLambdaFunction"
               },
-              "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+              "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
             }
           },
-          "DeleteTodoLambdaVersionFpis6CnBW764xaZpl2p7vMMYP68kWeWbHjPjt6P6e8": {
+          "DeleteTodoLambdaVersionLK7nyy9zjWAXtwZemaM0c9MhspLs9fMCzgfhfp59n0": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "DeleteTodoLambdaFunction"
               },
-              "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+              "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
             }
           },
-          "ListTodosByStatusLambdaVersionNYXiZflIQ66OmuY9yF7OBVCWfvlTAbbhGv6Cp3pNTs": {
+          "ListTodosByStatusLambdaVersionboZe3UcO7M2HYaF0DTnO8MhCP7xO9NMsMLEv4T4": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "ListTodosByStatusLambdaFunction"
               },
-              "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+              "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
             }
           },
           "HttpApi": {
@@ -2134,6 +3408,306 @@
                 ]
               }
             }
+          },
+          "StartLoginLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "StartLoginLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationStartLogin": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "Fn::GetAtt": [
+                  "StartLoginLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRoutePostAuthStartDashlogin": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "POST /auth/start-login",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationStartLogin"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationStartLogin"
+          },
+          "VerifyOtpLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "VerifyOtpLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationVerifyOtp": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "Fn::GetAtt": [
+                  "VerifyOtpLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRoutePostAuthVerifyDashotp": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "POST /auth/verify-otp",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationVerifyOtp"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationVerifyOtp"
+          },
+          "RegisterLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "RegisterLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationRegister": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "Fn::GetAtt": [
+                  "RegisterLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRoutePostAuthRegister": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "POST /auth/register",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationRegister"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationRegister"
+          },
+          "SigninLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "SigninLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationSignin": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "Fn::GetAtt": [
+                  "SigninLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRoutePostAuthSignin": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "POST /auth/signin",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationSignin"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationSignin"
           },
           "CreateTodoLambdaPermissionHttpApi": {
             "Type": "AWS::Lambda::Permission",
@@ -2693,6 +4267,28 @@
                 }
               ]
             }
+          },
+          "UsersTable": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+              "TableName": "Users",
+              "AttributeDefinitions": [
+                {
+                  "AttributeName": "phone",
+                  "AttributeType": "S"
+                }
+              ],
+              "KeySchema": [
+                {
+                  "AttributeName": "phone",
+                  "KeyType": "HASH"
+                }
+              ],
+              "ProvisionedThroughput": {
+                "ReadCapacityUnits": 1,
+                "WriteCapacityUnits": 1
+              }
+            }
           }
         },
         "Outputs": {
@@ -2705,16 +4301,79 @@
           "CustomAuthorizerLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "CustomAuthorizerLambdaVersionODfRHskM6mSmqlTyRrd6jMikICaMW5IlKtoZEnQE"
+              "Ref": "CustomAuthorizerLambdaVersionzdeDTDSabtFrlnkDp6xJaALri2uHW1ZMYisS06QW98"
             },
             "Export": {
               "Name": "sls-task-manager-service-dev-CustomAuthorizerLambdaFunctionQualifiedArn"
             }
           },
+          "DefineAuthChallengeLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "DefineAuthChallengeLambdaVersioncYIe3IHpu8KLE1J1648UOLF9S1De6iJy9KcSMm3xwI0"
+            },
+            "Export": {
+              "Name": "sls-task-manager-service-dev-DefineAuthChallengeLambdaFunctionQualifiedArn"
+            }
+          },
+          "CreateAuthChallengeLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "CreateAuthChallengeLambdaVersionLRrPDIaK0eD8kIztk7lJA6pntKAke5Nejbo6vanG0"
+            },
+            "Export": {
+              "Name": "sls-task-manager-service-dev-CreateAuthChallengeLambdaFunctionQualifiedArn"
+            }
+          },
+          "VerifyAuthChallengeLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "VerifyAuthChallengeLambdaVersionaSDDzIhnjlElJeNXmnUfitLYuzMq6IhW442EE3vOTHE"
+            },
+            "Export": {
+              "Name": "sls-task-manager-service-dev-VerifyAuthChallengeLambdaFunctionQualifiedArn"
+            }
+          },
+          "StartLoginLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "StartLoginLambdaVersionFERdTcBpQtjWjADHOY0cOWRZXrceYsvkaCdk6FXpfw"
+            },
+            "Export": {
+              "Name": "sls-task-manager-service-dev-StartLoginLambdaFunctionQualifiedArn"
+            }
+          },
+          "VerifyOtpLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "VerifyOtpLambdaVersionrsfXwukIDmErrgMUcCDssh4lKe0pxNtraRsVuIL0sxE"
+            },
+            "Export": {
+              "Name": "sls-task-manager-service-dev-VerifyOtpLambdaFunctionQualifiedArn"
+            }
+          },
+          "RegisterLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "RegisterLambdaVersionrPl8g68THEhWID640aaOjbN97M5KvMPvYAyX24w"
+            },
+            "Export": {
+              "Name": "sls-task-manager-service-dev-RegisterLambdaFunctionQualifiedArn"
+            }
+          },
+          "SigninLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "SigninLambdaVersion2PiVHJH6xaz3mS2QcSUCABqOiA8t9TL8eJoZGSqLu2M"
+            },
+            "Export": {
+              "Name": "sls-task-manager-service-dev-SigninLambdaFunctionQualifiedArn"
+            }
+          },
           "CreateTodoLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "CreateTodoLambdaVersionU0YuQ8gh9iu3qEmYb8EwjTWOOm8APBXCfunogKHg"
+              "Ref": "CreateTodoLambdaVersionMt2HW3KRB7axfHhl2QfBtLy5YvHDBbrXAXxzJ1Leupc"
             },
             "Export": {
               "Name": "sls-task-manager-service-dev-CreateTodoLambdaFunctionQualifiedArn"
@@ -2723,7 +4382,7 @@
           "ListTodosLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ListTodosLambdaVersionChAHaUdO0iO26y0KJCGkQTOz5bvOER7Bl3p5QFnzk"
+              "Ref": "ListTodosLambdaVersionOreAZdH3ewmmduuwcqXpI8RiYiJeKBt7yZsPfAzC6c"
             },
             "Export": {
               "Name": "sls-task-manager-service-dev-ListTodosLambdaFunctionQualifiedArn"
@@ -2732,7 +4391,7 @@
           "GetTodoLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "GetTodoLambdaVersioneSmRYfW1tPy1Ftc9nAKUXBZfklXFkEfnAK1RMFBEIU"
+              "Ref": "GetTodoLambdaVersionbhLkT5qOIicpCkIgFBziiAw38IXzvqjD7pwDj97VrE"
             },
             "Export": {
               "Name": "sls-task-manager-service-dev-GetTodoLambdaFunctionQualifiedArn"
@@ -2741,7 +4400,7 @@
           "UpdateTodoLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "UpdateTodoLambdaVersionaHvXiE4SpheXnEE3Zhk2ZlIJYuDkMoxKYGGIWufic"
+              "Ref": "UpdateTodoLambdaVersion4XG4X2rzSsOqAozJKHgD06r0nCaYrQXjDbgjTcMmVeI"
             },
             "Export": {
               "Name": "sls-task-manager-service-dev-UpdateTodoLambdaFunctionQualifiedArn"
@@ -2750,7 +4409,7 @@
           "DeleteTodoLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "DeleteTodoLambdaVersionFpis6CnBW764xaZpl2p7vMMYP68kWeWbHjPjt6P6e8"
+              "Ref": "DeleteTodoLambdaVersionLK7nyy9zjWAXtwZemaM0c9MhspLs9fMCzgfhfp59n0"
             },
             "Export": {
               "Name": "sls-task-manager-service-dev-DeleteTodoLambdaFunctionQualifiedArn"
@@ -2759,7 +4418,7 @@
           "ListTodosByStatusLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ListTodosByStatusLambdaVersionNYXiZflIQ66OmuY9yF7OBVCWfvlTAbbhGv6Cp3pNTs"
+              "Ref": "ListTodosByStatusLambdaVersionboZe3UcO7M2HYaF0DTnO8MhCP7xO9NMsMLEv4T4"
             },
             "Export": {
               "Name": "sls-task-manager-service-dev-ListTodosByStatusLambdaFunctionQualifiedArn"
@@ -2812,7 +4471,7 @@
       "serviceProvider": null,
       "instanceParameters": null
     },
-    "serviceRawFile": "# \"org\" ensures this Service is used with the correct Serverless Framework Access Key.\norg: nlpnserverless\nservice: task-manager-service\n\nframeworkVersion: '4'\n\nprovider:\n  name: aws\n  runtime: nodejs18.x\n  region: ap-southeast-1\n  stage: dev\n  httpApi:\n    cors: true\n    authorizers:\n      customAuthorizer:\n        type: request\n        functionName: customAuthorizer\n        name: customAuthorizer\n        resultTtlInSeconds: 0\n        enableSimpleResponses: true\n        payloadVersion: '2.0'\n        identitySource:\n          - $request.header.Authorization\n          - $request.header.authorization\n  environment:\n    TABLE_NAME: ${self:custom.tableName}\n    USER_POOL_ID: ap-southeast-1_4Fe9nw33I\n    CLIENT_ID: 4na95skm65bele9e295ej6q7u5\n  iam:\n    role:\n      statements:\n        - Effect: Allow\n          Action:\n            - dynamodb:GetItem\n            - dynamodb:PutItem\n            - dynamodb:UpdateItem\n            - dynamodb:DeleteItem\n            - dynamodb:Scan\n            - dynamodb:Query\n          Resource:\n            - \"arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:custom.tableName}\"\n            - \"arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:custom.tableName}/index/status-index\"\n\ncustom:\n  tableName: 'todos-table'\n\nplugins:\n  - serverless-offline\n\nfunctions:\n  customAuthorizer:\n    handler: src/authorizer.handler\n    role: AuthorizerRole\n\n  createTodo:\n    handler: src/controllers/todoController.createTodo\n    events:\n      - httpApi:\n          path: /todos\n          method: post\n          authorizer:\n            name: customAuthorizer\n\n  listTodos:\n    handler: src/controllers/todoController.listTodos\n    events:\n      - httpApi:\n          path: /todos\n          method: get\n          authorizer:\n            name: customAuthorizer\n\n  getTodo:\n    handler: src/controllers/todoController.getTodo\n    events:\n      - httpApi:\n          path: /todos/{id}\n          method: get\n          authorizer:\n            name: customAuthorizer\n\n  updateTodo:\n    handler: src/controllers/todoController.updateTodo\n    events:\n      - httpApi:\n          path: /todos/{id}\n          method: put\n          authorizer:\n            name: customAuthorizer\n\n  deleteTodo:\n    handler: src/controllers/todoController.deleteTodo\n    events:\n      - httpApi:\n          path: /todos/{id}\n          method: delete\n          authorizer:\n            name: customAuthorizer\n\n  listTodosByStatus:\n    handler: src/controllers/todoController.listTodosByStatus\n    events:\n      - httpApi:\n          path: /todos/by-status/{status}\n          method: get\n          authorizer:\n            name: customAuthorizer\n\nresources:\n  Resources:\n    AuthorizerRole:\n      Type: AWS::IAM::Role\n      Properties:\n        RoleName: ${self:service}-${self:provider.stage}-authorizer-role\n        AssumeRolePolicyDocument:\n          Version: '2012-10-17'\n          Statement:\n            - Effect: Allow\n              Principal:\n                Service:\n                  - lambda.amazonaws.com\n              Action: sts:AssumeRole\n        Policies:\n          - PolicyName: AuthorizerPolicy\n            PolicyDocument:\n              Version: '2012-10-17'\n              Statement:\n                - Effect: Allow\n                  Action:\n                    - logs:CreateLogGroup\n                    - logs:CreateLogStream\n                    - logs:PutLogEvents\n                  Resource:\n                    - 'arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/aws/lambda/*:*:*'\n\n    TodosTable:\n      Type: 'AWS::DynamoDB::Table'\n      Properties:\n        TableName: ${self:custom.tableName}\n        AttributeDefinitions:\n          - AttributeName: 'id'\n            AttributeType: 'S'\n          - AttributeName: 'status'\n            AttributeType: 'S'\n        KeySchema:\n          - AttributeName: 'id'\n            KeyType: 'HASH'\n        ProvisionedThroughput:\n          ReadCapacityUnits: 1\n          WriteCapacityUnits: 1\n        GlobalSecondaryIndexes:\n          - IndexName: 'status-index'\n            KeySchema:\n              - AttributeName: 'status'\n                KeyType: 'HASH'\n            Projection:\n              ProjectionType: 'ALL'\n            ProvisionedThroughput:\n              ReadCapacityUnits: 1\n              WriteCapacityUnits: 1",
+    "serviceRawFile": "org: nlpnserverless\nservice: task-manager-service\n\nframeworkVersion: '4'\n\nprovider:\n  name: aws\n  runtime: nodejs18.x\n  region: ap-southeast-1\n  stage: dev\n  httpApi:\n    cors: true\n    authorizers:\n      customAuthorizer:\n        type: request\n        functionName: customAuthorizer\n        name: customAuthorizer\n        resultTtlInSeconds: 0\n        enableSimpleResponses: true\n        payloadVersion: '2.0'\n        identitySource:\n          - $request.header.Authorization\n          - $request.header.authorization\n  environment:\n    TABLE_NAME: ${self:custom.tableName}\n    USER_POOL_ID: ap-southeast-1_1NCIH8mzZ\n    CLIENT_ID: 6q6rpl3gim61bcsbb04tnqnb91\n    USERS_TABLE: ${self:custom.usersTableName} # Sử dụng biến để nhất quán\n  iam:\n    role:\n      statements:\n        - Effect: Allow\n          Action:\n            - dynamodb:GetItem\n            - dynamodb:PutItem\n            - dynamodb:UpdateItem\n            - dynamodb:DeleteItem\n            - dynamodb:Scan\n            - dynamodb:Query\n          Resource:\n            - \"arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:custom.tableName}\"\n            - \"arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:custom.tableName}/index/status-index\"\n            - \"arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:custom.usersTableName}\" # Điểm đến bảng Users\n        - Effect: Allow\n          Action:\n            - cognito-idp:AdminCreateUser\n            - cognito-idp:AdminInitiateAuth\n            - cognito-idp:AdminRespondToAuthChallenge\n            - cognito-idp:AdminSetUserPassword\n          Resource: \"arn:aws:cognito-idp:${aws:region}:${aws:accountId}:userpool/ap-southeast-1_1NCIH8mzZ\"\n\ncustom:\n  tableName: 'todos-table'\n  usersTableName: 'Users' # Cập nhật thành Users để khớp với bảng thực tế\n\nplugins:\n  - serverless-offline\n\nfunctions:\n  customAuthorizer:\n    handler: src/authorizer.handler\n    role: AuthorizerRole\n\n  defineAuthChallenge:\n    handler: src/triggers/defineAuthChallenge.handler\n  createAuthChallenge:\n    handler: src/triggers/createAuthChallenge.handler\n  verifyAuthChallenge:\n    handler: src/triggers/verifyAuthChallenge.handler\n\n  startLogin:\n    handler: src/controllers/authController.startLogin\n    events:\n      - httpApi:\n          path: /auth/start-login\n          method: post\n\n  verifyOtp:\n    handler: src/controllers/authController.verifyOtp\n    events:\n      - httpApi:\n          path: /auth/verify-otp\n          method: post\n\n  register:\n    handler: src/controllers/authController.registerUser\n    events:\n      - httpApi:\n          path: /auth/register\n          method: post\n\n  signin:\n      handler: src/controllers/authController.signin\n      events:\n        - httpApi:\n            path: /auth/signin\n            method: post\n            \n  createTodo:\n    handler: src/controllers/todoController.createTodo\n    events:\n      - httpApi:\n          path: /todos\n          method: post\n          authorizer:\n            name: customAuthorizer\n\n  listTodos:\n    handler: src/controllers/todoController.listTodos\n    events:\n      - httpApi:\n          path: /todos\n          method: get\n          authorizer:\n            name: customAuthorizer\n\n  getTodo:\n    handler: src/controllers/todoController.getTodo\n    events:\n      - httpApi:\n          path: /todos/{id}\n          method: get\n          authorizer:\n            name: customAuthorizer\n\n  updateTodo:\n    handler: src/controllers/todoController.updateTodo\n    events:\n      - httpApi:\n          path: /todos/{id}\n          method: put\n          authorizer:\n            name: customAuthorizer\n\n  deleteTodo:\n    handler: src/controllers/todoController.deleteTodo\n    events:\n      - httpApi:\n          path: /todos/{id}\n          method: delete\n          authorizer:\n            name: customAuthorizer\n\n  listTodosByStatus:\n    handler: src/controllers/todoController.listTodosByStatus\n    events:\n      - httpApi:\n          path: /todos/by-status/{status}\n          method: get\n          authorizer:\n            name: customAuthorizer\n\nresources:\n  Resources:\n    AuthorizerRole:\n      Type: AWS::IAM::Role\n      Properties:\n        RoleName: ${self:service}-${self:provider.stage}-authorizer-role\n        AssumeRolePolicyDocument:\n          Version: '2012-10-17'\n          Statement:\n            - Effect: Allow\n              Principal:\n                Service:\n                  - lambda.amazonaws.com\n              Action: sts:AssumeRole\n        Policies:\n          - PolicyName: AuthorizerPolicy\n            PolicyDocument:\n              Version: '2012-10-17'\n              Statement:\n                - Effect: Allow\n                  Action:\n                    - logs:CreateLogGroup\n                    - logs:CreateLogStream\n                    - logs:PutLogEvents\n                  Resource:\n                    - 'arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/aws/lambda/*:*:*'\n\n    TodosTable:\n      Type: 'AWS::DynamoDB::Table'\n      Properties:\n        TableName: ${self:custom.tableName}\n        AttributeDefinitions:\n          - AttributeName: 'id'\n            AttributeType: 'S'\n          - AttributeName: 'status'\n            AttributeType: 'S'\n        KeySchema:\n          - AttributeName: 'id'\n            KeyType: 'HASH'\n        ProvisionedThroughput:\n          ReadCapacityUnits: 1\n          WriteCapacityUnits: 1\n        GlobalSecondaryIndexes:\n          - IndexName: 'status-index'\n            KeySchema:\n              - AttributeName: 'status'\n                KeyType: 'HASH'\n            Projection:\n              ProjectionType: 'ALL'\n            ProvisionedThroughput:\n              ReadCapacityUnits: 1\n              WriteCapacityUnits: 1\n\n    UsersTable:\n      Type: 'AWS::DynamoDB::Table'\n      Properties:\n        TableName: ${self:custom.usersTableName} # Sử dụng Users\n        AttributeDefinitions:\n          - AttributeName: 'phone'\n            AttributeType: 'S'\n        KeySchema:\n          - AttributeName: 'phone'\n            KeyType: 'HASH'\n        ProvisionedThroughput:\n          ReadCapacityUnits: 1\n          WriteCapacityUnits: 1",
     "command": [
       "deploy"
     ],
@@ -2823,50 +4482,62 @@
     "userName": "nlpnserverless",
     "serviceProviderAwsAccountId": "476114140816",
     "serviceProviderAwsCfStackName": "task-manager-service-dev",
-    "serviceProviderAwsCfStackId": "arn:aws:cloudformation:ap-southeast-1:476114140816:stack/task-manager-service-dev/7931cfe0-8244-11f0-9259-066549049575",
-    "serviceProviderAwsCfStackCreated": "2025-08-26T06:18:25.232Z",
-    "serviceProviderAwsCfStackUpdated": "2025-08-27T07:12:02.822Z",
+    "serviceProviderAwsCfStackId": "arn:aws:cloudformation:ap-southeast-1:476114140816:stack/task-manager-service-dev/179873a0-87db-11f0-af63-02ef6faf5b89",
+    "serviceProviderAwsCfStackCreated": "2025-09-02T08:59:11.333Z",
+    "serviceProviderAwsCfStackUpdated": "2025-09-04T02:16:00.973Z",
     "serviceProviderAwsCfStackStatus": "UPDATE_COMPLETE",
     "serviceProviderAwsCfStackOutputs": [
       {
+        "OutputKey": "VerifyAuthChallengeLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-southeast-1:476114140816:function:task-manager-service-dev-verifyAuthChallenge:32",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-task-manager-service-dev-VerifyAuthChallengeLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "StartLoginLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-southeast-1:476114140816:function:task-manager-service-dev-startLogin:40",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-task-manager-service-dev-StartLoginLambdaFunctionQualifiedArn"
+      },
+      {
         "OutputKey": "UpdateTodoLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:ap-southeast-1:476114140816:function:task-manager-service-dev-updateTodo:16",
+        "OutputValue": "arn:aws:lambda:ap-southeast-1:476114140816:function:task-manager-service-dev-updateTodo:57",
         "Description": "Current Lambda function version",
         "ExportName": "sls-task-manager-service-dev-UpdateTodoLambdaFunctionQualifiedArn"
       },
       {
         "OutputKey": "GetTodoLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:ap-southeast-1:476114140816:function:task-manager-service-dev-getTodo:16",
+        "OutputValue": "arn:aws:lambda:ap-southeast-1:476114140816:function:task-manager-service-dev-getTodo:57",
         "Description": "Current Lambda function version",
         "ExportName": "sls-task-manager-service-dev-GetTodoLambdaFunctionQualifiedArn"
       },
       {
-        "OutputKey": "DeleteTodoLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:ap-southeast-1:476114140816:function:task-manager-service-dev-deleteTodo:16",
+        "OutputKey": "RegisterLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-southeast-1:476114140816:function:task-manager-service-dev-register:16",
         "Description": "Current Lambda function version",
-        "ExportName": "sls-task-manager-service-dev-DeleteTodoLambdaFunctionQualifiedArn"
-      },
-      {
-        "OutputKey": "ListTodosByStatusLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:ap-southeast-1:476114140816:function:task-manager-service-dev-listTodosByStatus:16",
-        "Description": "Current Lambda function version",
-        "ExportName": "sls-task-manager-service-dev-ListTodosByStatusLambdaFunctionQualifiedArn"
+        "ExportName": "sls-task-manager-service-dev-RegisterLambdaFunctionQualifiedArn"
       },
       {
         "OutputKey": "CustomAuthorizerLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:ap-southeast-1:476114140816:function:task-manager-service-dev-customAuthorizer:1",
+        "OutputValue": "arn:aws:lambda:ap-southeast-1:476114140816:function:task-manager-service-dev-customAuthorizer:42",
         "Description": "Current Lambda function version",
         "ExportName": "sls-task-manager-service-dev-CustomAuthorizerLambdaFunctionQualifiedArn"
       },
       {
+        "OutputKey": "DefineAuthChallengeLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-southeast-1:476114140816:function:task-manager-service-dev-defineAuthChallenge:32",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-task-manager-service-dev-DefineAuthChallengeLambdaFunctionQualifiedArn"
+      },
+      {
         "OutputKey": "HttpApiId",
-        "OutputValue": "p52ipnf0g2",
+        "OutputValue": "iji77mm5aa",
         "Description": "Id of the HTTP API",
         "ExportName": "sls-task-manager-service-dev-HttpApiId"
       },
       {
         "OutputKey": "CreateTodoLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:ap-southeast-1:476114140816:function:task-manager-service-dev-createTodo:16",
+        "OutputValue": "arn:aws:lambda:ap-southeast-1:476114140816:function:task-manager-service-dev-createTodo:57",
         "Description": "Current Lambda function version",
         "ExportName": "sls-task-manager-service-dev-CreateTodoLambdaFunctionQualifiedArn"
       },
@@ -2876,16 +4547,40 @@
         "ExportName": "sls-task-manager-service-dev-ServerlessDeploymentBucketName"
       },
       {
-        "OutputKey": "ListTodosLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:ap-southeast-1:476114140816:function:task-manager-service-dev-listTodos:16",
-        "Description": "Current Lambda function version",
-        "ExportName": "sls-task-manager-service-dev-ListTodosLambdaFunctionQualifiedArn"
-      },
-      {
         "OutputKey": "HttpApiUrl",
-        "OutputValue": "https://p52ipnf0g2.execute-api.ap-southeast-1.amazonaws.com",
+        "OutputValue": "https://iji77mm5aa.execute-api.ap-southeast-1.amazonaws.com",
         "Description": "URL of the HTTP API",
         "ExportName": "sls-task-manager-service-dev-HttpApiUrl"
+      },
+      {
+        "OutputKey": "DeleteTodoLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-southeast-1:476114140816:function:task-manager-service-dev-deleteTodo:57",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-task-manager-service-dev-DeleteTodoLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "ListTodosByStatusLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-southeast-1:476114140816:function:task-manager-service-dev-listTodosByStatus:57",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-task-manager-service-dev-ListTodosByStatusLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "CreateAuthChallengeLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-southeast-1:476114140816:function:task-manager-service-dev-createAuthChallenge:32",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-task-manager-service-dev-CreateAuthChallengeLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "VerifyOtpLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-southeast-1:476114140816:function:task-manager-service-dev-verifyOtp:40",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-task-manager-service-dev-VerifyOtpLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "ListTodosLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-southeast-1:476114140816:function:task-manager-service-dev-listTodos:57",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-task-manager-service-dev-ListTodosLambdaFunctionQualifiedArn"
       }
     ],
     "compiledCloudFormationTemplate": {
@@ -2896,6 +4591,48 @@
           "Type": "AWS::Logs::LogGroup",
           "Properties": {
             "LogGroupName": "/aws/lambda/task-manager-service-dev-customAuthorizer"
+          }
+        },
+        "DefineAuthChallengeLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/task-manager-service-dev-defineAuthChallenge"
+          }
+        },
+        "CreateAuthChallengeLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/task-manager-service-dev-createAuthChallenge"
+          }
+        },
+        "VerifyAuthChallengeLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/task-manager-service-dev-verifyAuthChallenge"
+          }
+        },
+        "StartLoginLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/task-manager-service-dev-startLogin"
+          }
+        },
+        "VerifyOtpLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/task-manager-service-dev-verifyOtp"
+          }
+        },
+        "RegisterLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/task-manager-service-dev-register"
+          }
+        },
+        "SigninLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/task-manager-service-dev-signin"
           }
         },
         "CreateTodoLogGroup": {
@@ -3004,8 +4741,19 @@
                       ],
                       "Resource": [
                         "arn:aws:dynamodb:ap-southeast-1:476114140816:table/todos-table",
-                        "arn:aws:dynamodb:ap-southeast-1:476114140816:table/todos-table/index/status-index"
+                        "arn:aws:dynamodb:ap-southeast-1:476114140816:table/todos-table/index/status-index",
+                        "arn:aws:dynamodb:ap-southeast-1:476114140816:table/Users"
                       ]
+                    },
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "cognito-idp:AdminCreateUser",
+                        "cognito-idp:AdminInitiateAuth",
+                        "cognito-idp:AdminRespondToAuthChallenge",
+                        "cognito-idp:AdminSetUserPassword"
+                      ],
+                      "Resource": "arn:aws:cognito-idp:ap-southeast-1:476114140816:userpool/ap-southeast-1_1NCIH8mzZ"
                     }
                   ]
                 }
@@ -3032,7 +4780,7 @@
           "Properties": {
             "Code": {
               "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
-              "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+              "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
             },
             "Handler": "src/authorizer.handler",
             "Runtime": "nodejs18.x",
@@ -3042,8 +4790,9 @@
             "Environment": {
               "Variables": {
                 "TABLE_NAME": "todos-table",
-                "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
-                "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                "USERS_TABLE": "Users",
                 "NODE_OPTIONS": "--enable-source-maps"
               }
             },
@@ -3059,12 +4808,236 @@
             "AuthorizerRole"
           ]
         },
+        "DefineAuthChallengeLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+              "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
+            },
+            "Handler": "src/triggers/defineAuthChallenge.handler",
+            "Runtime": "nodejs18.x",
+            "FunctionName": "task-manager-service-dev-defineAuthChallenge",
+            "MemorySize": 1024,
+            "Timeout": 6,
+            "Environment": {
+              "Variables": {
+                "TABLE_NAME": "todos-table",
+                "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                "USERS_TABLE": "Users",
+                "NODE_OPTIONS": "--enable-source-maps"
+              }
+            },
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            }
+          },
+          "DependsOn": [
+            "DefineAuthChallengeLogGroup"
+          ]
+        },
+        "CreateAuthChallengeLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+              "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
+            },
+            "Handler": "src/triggers/createAuthChallenge.handler",
+            "Runtime": "nodejs18.x",
+            "FunctionName": "task-manager-service-dev-createAuthChallenge",
+            "MemorySize": 1024,
+            "Timeout": 6,
+            "Environment": {
+              "Variables": {
+                "TABLE_NAME": "todos-table",
+                "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                "USERS_TABLE": "Users",
+                "NODE_OPTIONS": "--enable-source-maps"
+              }
+            },
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            }
+          },
+          "DependsOn": [
+            "CreateAuthChallengeLogGroup"
+          ]
+        },
+        "VerifyAuthChallengeLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+              "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
+            },
+            "Handler": "src/triggers/verifyAuthChallenge.handler",
+            "Runtime": "nodejs18.x",
+            "FunctionName": "task-manager-service-dev-verifyAuthChallenge",
+            "MemorySize": 1024,
+            "Timeout": 6,
+            "Environment": {
+              "Variables": {
+                "TABLE_NAME": "todos-table",
+                "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                "USERS_TABLE": "Users",
+                "NODE_OPTIONS": "--enable-source-maps"
+              }
+            },
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            }
+          },
+          "DependsOn": [
+            "VerifyAuthChallengeLogGroup"
+          ]
+        },
+        "StartLoginLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+              "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
+            },
+            "Handler": "src/controllers/authController.startLogin",
+            "Runtime": "nodejs18.x",
+            "FunctionName": "task-manager-service-dev-startLogin",
+            "MemorySize": 1024,
+            "Timeout": 6,
+            "Environment": {
+              "Variables": {
+                "TABLE_NAME": "todos-table",
+                "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                "USERS_TABLE": "Users",
+                "NODE_OPTIONS": "--enable-source-maps"
+              }
+            },
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            }
+          },
+          "DependsOn": [
+            "StartLoginLogGroup"
+          ]
+        },
+        "VerifyOtpLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+              "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
+            },
+            "Handler": "src/controllers/authController.verifyOtp",
+            "Runtime": "nodejs18.x",
+            "FunctionName": "task-manager-service-dev-verifyOtp",
+            "MemorySize": 1024,
+            "Timeout": 6,
+            "Environment": {
+              "Variables": {
+                "TABLE_NAME": "todos-table",
+                "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                "USERS_TABLE": "Users",
+                "NODE_OPTIONS": "--enable-source-maps"
+              }
+            },
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            }
+          },
+          "DependsOn": [
+            "VerifyOtpLogGroup"
+          ]
+        },
+        "RegisterLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+              "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
+            },
+            "Handler": "src/controllers/authController.registerUser",
+            "Runtime": "nodejs18.x",
+            "FunctionName": "task-manager-service-dev-register",
+            "MemorySize": 1024,
+            "Timeout": 6,
+            "Environment": {
+              "Variables": {
+                "TABLE_NAME": "todos-table",
+                "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                "USERS_TABLE": "Users",
+                "NODE_OPTIONS": "--enable-source-maps"
+              }
+            },
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            }
+          },
+          "DependsOn": [
+            "RegisterLogGroup"
+          ]
+        },
+        "SigninLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
+              "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
+            },
+            "Handler": "src/controllers/authController.signin",
+            "Runtime": "nodejs18.x",
+            "FunctionName": "task-manager-service-dev-signin",
+            "MemorySize": 1024,
+            "Timeout": 6,
+            "Environment": {
+              "Variables": {
+                "TABLE_NAME": "todos-table",
+                "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                "USERS_TABLE": "Users",
+                "NODE_OPTIONS": "--enable-source-maps"
+              }
+            },
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            }
+          },
+          "DependsOn": [
+            "SigninLogGroup"
+          ]
+        },
         "CreateTodoLambdaFunction": {
           "Type": "AWS::Lambda::Function",
           "Properties": {
             "Code": {
               "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
-              "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+              "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
             },
             "Handler": "src/controllers/todoController.createTodo",
             "Runtime": "nodejs18.x",
@@ -3074,8 +5047,9 @@
             "Environment": {
               "Variables": {
                 "TABLE_NAME": "todos-table",
-                "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
-                "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                "USERS_TABLE": "Users",
                 "NODE_OPTIONS": "--enable-source-maps"
               }
             },
@@ -3095,7 +5069,7 @@
           "Properties": {
             "Code": {
               "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
-              "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+              "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
             },
             "Handler": "src/controllers/todoController.listTodos",
             "Runtime": "nodejs18.x",
@@ -3105,8 +5079,9 @@
             "Environment": {
               "Variables": {
                 "TABLE_NAME": "todos-table",
-                "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
-                "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                "USERS_TABLE": "Users",
                 "NODE_OPTIONS": "--enable-source-maps"
               }
             },
@@ -3126,7 +5101,7 @@
           "Properties": {
             "Code": {
               "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
-              "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+              "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
             },
             "Handler": "src/controllers/todoController.getTodo",
             "Runtime": "nodejs18.x",
@@ -3136,8 +5111,9 @@
             "Environment": {
               "Variables": {
                 "TABLE_NAME": "todos-table",
-                "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
-                "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                "USERS_TABLE": "Users",
                 "NODE_OPTIONS": "--enable-source-maps"
               }
             },
@@ -3157,7 +5133,7 @@
           "Properties": {
             "Code": {
               "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
-              "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+              "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
             },
             "Handler": "src/controllers/todoController.updateTodo",
             "Runtime": "nodejs18.x",
@@ -3167,8 +5143,9 @@
             "Environment": {
               "Variables": {
                 "TABLE_NAME": "todos-table",
-                "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
-                "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                "USERS_TABLE": "Users",
                 "NODE_OPTIONS": "--enable-source-maps"
               }
             },
@@ -3188,7 +5165,7 @@
           "Properties": {
             "Code": {
               "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
-              "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+              "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
             },
             "Handler": "src/controllers/todoController.deleteTodo",
             "Runtime": "nodejs18.x",
@@ -3198,8 +5175,9 @@
             "Environment": {
               "Variables": {
                 "TABLE_NAME": "todos-table",
-                "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
-                "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                "USERS_TABLE": "Users",
                 "NODE_OPTIONS": "--enable-source-maps"
               }
             },
@@ -3219,7 +5197,7 @@
           "Properties": {
             "Code": {
               "S3Bucket": "serverless-framework-deployments-ap-southeast-1-be48ea48-0f56",
-              "S3Key": "serverless/task-manager-service/dev/1756281719551-2025-08-27T08:01:59.551Z/task-manager-service.zip"
+              "S3Key": "serverless/task-manager-service/dev/1756952420985-2025-09-04T02:20:20.985Z/task-manager-service.zip"
             },
             "Handler": "src/controllers/todoController.listTodosByStatus",
             "Runtime": "nodejs18.x",
@@ -3229,8 +5207,9 @@
             "Environment": {
               "Variables": {
                 "TABLE_NAME": "todos-table",
-                "USER_POOL_ID": "ap-southeast-1_4Fe9nw33I",
-                "CLIENT_ID": "4na95skm65bele9e295ej6q7u5",
+                "USER_POOL_ID": "ap-southeast-1_1NCIH8mzZ",
+                "CLIENT_ID": "6q6rpl3gim61bcsbb04tnqnb91",
+                "USERS_TABLE": "Users",
                 "NODE_OPTIONS": "--enable-source-maps"
               }
             },
@@ -3245,74 +5224,144 @@
             "ListTodosByStatusLogGroup"
           ]
         },
-        "CustomAuthorizerLambdaVersionODfRHskM6mSmqlTyRrd6jMikICaMW5IlKtoZEnQE": {
+        "CustomAuthorizerLambdaVersionzdeDTDSabtFrlnkDp6xJaALri2uHW1ZMYisS06QW98": {
           "Type": "AWS::Lambda::Version",
           "DeletionPolicy": "Retain",
           "Properties": {
             "FunctionName": {
               "Ref": "CustomAuthorizerLambdaFunction"
             },
-            "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+            "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
           }
         },
-        "CreateTodoLambdaVersionU0YuQ8gh9iu3qEmYb8EwjTWOOm8APBXCfunogKHg": {
+        "DefineAuthChallengeLambdaVersioncYIe3IHpu8KLE1J1648UOLF9S1De6iJy9KcSMm3xwI0": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "DefineAuthChallengeLambdaFunction"
+            },
+            "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
+          }
+        },
+        "CreateAuthChallengeLambdaVersionLRrPDIaK0eD8kIztk7lJA6pntKAke5Nejbo6vanG0": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "CreateAuthChallengeLambdaFunction"
+            },
+            "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
+          }
+        },
+        "VerifyAuthChallengeLambdaVersionaSDDzIhnjlElJeNXmnUfitLYuzMq6IhW442EE3vOTHE": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "VerifyAuthChallengeLambdaFunction"
+            },
+            "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
+          }
+        },
+        "StartLoginLambdaVersionFERdTcBpQtjWjADHOY0cOWRZXrceYsvkaCdk6FXpfw": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "StartLoginLambdaFunction"
+            },
+            "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
+          }
+        },
+        "VerifyOtpLambdaVersionrsfXwukIDmErrgMUcCDssh4lKe0pxNtraRsVuIL0sxE": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "VerifyOtpLambdaFunction"
+            },
+            "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
+          }
+        },
+        "RegisterLambdaVersionrPl8g68THEhWID640aaOjbN97M5KvMPvYAyX24w": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "RegisterLambdaFunction"
+            },
+            "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
+          }
+        },
+        "SigninLambdaVersion2PiVHJH6xaz3mS2QcSUCABqOiA8t9TL8eJoZGSqLu2M": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "SigninLambdaFunction"
+            },
+            "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
+          }
+        },
+        "CreateTodoLambdaVersionMt2HW3KRB7axfHhl2QfBtLy5YvHDBbrXAXxzJ1Leupc": {
           "Type": "AWS::Lambda::Version",
           "DeletionPolicy": "Retain",
           "Properties": {
             "FunctionName": {
               "Ref": "CreateTodoLambdaFunction"
             },
-            "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+            "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
           }
         },
-        "ListTodosLambdaVersionChAHaUdO0iO26y0KJCGkQTOz5bvOER7Bl3p5QFnzk": {
+        "ListTodosLambdaVersionOreAZdH3ewmmduuwcqXpI8RiYiJeKBt7yZsPfAzC6c": {
           "Type": "AWS::Lambda::Version",
           "DeletionPolicy": "Retain",
           "Properties": {
             "FunctionName": {
               "Ref": "ListTodosLambdaFunction"
             },
-            "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+            "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
           }
         },
-        "GetTodoLambdaVersioneSmRYfW1tPy1Ftc9nAKUXBZfklXFkEfnAK1RMFBEIU": {
+        "GetTodoLambdaVersionbhLkT5qOIicpCkIgFBziiAw38IXzvqjD7pwDj97VrE": {
           "Type": "AWS::Lambda::Version",
           "DeletionPolicy": "Retain",
           "Properties": {
             "FunctionName": {
               "Ref": "GetTodoLambdaFunction"
             },
-            "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+            "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
           }
         },
-        "UpdateTodoLambdaVersionaHvXiE4SpheXnEE3Zhk2ZlIJYuDkMoxKYGGIWufic": {
+        "UpdateTodoLambdaVersion4XG4X2rzSsOqAozJKHgD06r0nCaYrQXjDbgjTcMmVeI": {
           "Type": "AWS::Lambda::Version",
           "DeletionPolicy": "Retain",
           "Properties": {
             "FunctionName": {
               "Ref": "UpdateTodoLambdaFunction"
             },
-            "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+            "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
           }
         },
-        "DeleteTodoLambdaVersionFpis6CnBW764xaZpl2p7vMMYP68kWeWbHjPjt6P6e8": {
+        "DeleteTodoLambdaVersionLK7nyy9zjWAXtwZemaM0c9MhspLs9fMCzgfhfp59n0": {
           "Type": "AWS::Lambda::Version",
           "DeletionPolicy": "Retain",
           "Properties": {
             "FunctionName": {
               "Ref": "DeleteTodoLambdaFunction"
             },
-            "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+            "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
           }
         },
-        "ListTodosByStatusLambdaVersionNYXiZflIQ66OmuY9yF7OBVCWfvlTAbbhGv6Cp3pNTs": {
+        "ListTodosByStatusLambdaVersionboZe3UcO7M2HYaF0DTnO8MhCP7xO9NMsMLEv4T4": {
           "Type": "AWS::Lambda::Version",
           "DeletionPolicy": "Retain",
           "Properties": {
             "FunctionName": {
               "Ref": "ListTodosByStatusLambdaFunction"
             },
-            "CodeSha256": "2M+vKgIylIzUzesSjoiY5aesWsCJBbI+i9+yOXBKYq8="
+            "CodeSha256": "6UL0ZYNl1v1h9S8jEnA2/B3N0K11XqWyBKGFAHE+H/w="
           }
         },
         "HttpApi": {
@@ -3432,6 +5481,306 @@
               ]
             }
           }
+        },
+        "StartLoginLambdaPermissionHttpApi": {
+          "Type": "AWS::Lambda::Permission",
+          "Properties": {
+            "FunctionName": {
+              "Fn::GetAtt": [
+                "StartLoginLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Action": "lambda:InvokeFunction",
+            "Principal": "apigateway.amazonaws.com",
+            "SourceArn": {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:",
+                  {
+                    "Ref": "AWS::Partition"
+                  },
+                  ":execute-api:",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ":",
+                  {
+                    "Ref": "AWS::AccountId"
+                  },
+                  ":",
+                  {
+                    "Ref": "HttpApi"
+                  },
+                  "/*"
+                ]
+              ]
+            }
+          }
+        },
+        "HttpApiIntegrationStartLogin": {
+          "Type": "AWS::ApiGatewayV2::Integration",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "IntegrationType": "AWS_PROXY",
+            "IntegrationUri": {
+              "Fn::GetAtt": [
+                "StartLoginLambdaFunction",
+                "Arn"
+              ]
+            },
+            "PayloadFormatVersion": "2.0",
+            "TimeoutInMillis": 30000
+          }
+        },
+        "HttpApiRoutePostAuthStartDashlogin": {
+          "Type": "AWS::ApiGatewayV2::Route",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "RouteKey": "POST /auth/start-login",
+            "Target": {
+              "Fn::Join": [
+                "/",
+                [
+                  "integrations",
+                  {
+                    "Ref": "HttpApiIntegrationStartLogin"
+                  }
+                ]
+              ]
+            }
+          },
+          "DependsOn": "HttpApiIntegrationStartLogin"
+        },
+        "VerifyOtpLambdaPermissionHttpApi": {
+          "Type": "AWS::Lambda::Permission",
+          "Properties": {
+            "FunctionName": {
+              "Fn::GetAtt": [
+                "VerifyOtpLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Action": "lambda:InvokeFunction",
+            "Principal": "apigateway.amazonaws.com",
+            "SourceArn": {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:",
+                  {
+                    "Ref": "AWS::Partition"
+                  },
+                  ":execute-api:",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ":",
+                  {
+                    "Ref": "AWS::AccountId"
+                  },
+                  ":",
+                  {
+                    "Ref": "HttpApi"
+                  },
+                  "/*"
+                ]
+              ]
+            }
+          }
+        },
+        "HttpApiIntegrationVerifyOtp": {
+          "Type": "AWS::ApiGatewayV2::Integration",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "IntegrationType": "AWS_PROXY",
+            "IntegrationUri": {
+              "Fn::GetAtt": [
+                "VerifyOtpLambdaFunction",
+                "Arn"
+              ]
+            },
+            "PayloadFormatVersion": "2.0",
+            "TimeoutInMillis": 30000
+          }
+        },
+        "HttpApiRoutePostAuthVerifyDashotp": {
+          "Type": "AWS::ApiGatewayV2::Route",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "RouteKey": "POST /auth/verify-otp",
+            "Target": {
+              "Fn::Join": [
+                "/",
+                [
+                  "integrations",
+                  {
+                    "Ref": "HttpApiIntegrationVerifyOtp"
+                  }
+                ]
+              ]
+            }
+          },
+          "DependsOn": "HttpApiIntegrationVerifyOtp"
+        },
+        "RegisterLambdaPermissionHttpApi": {
+          "Type": "AWS::Lambda::Permission",
+          "Properties": {
+            "FunctionName": {
+              "Fn::GetAtt": [
+                "RegisterLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Action": "lambda:InvokeFunction",
+            "Principal": "apigateway.amazonaws.com",
+            "SourceArn": {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:",
+                  {
+                    "Ref": "AWS::Partition"
+                  },
+                  ":execute-api:",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ":",
+                  {
+                    "Ref": "AWS::AccountId"
+                  },
+                  ":",
+                  {
+                    "Ref": "HttpApi"
+                  },
+                  "/*"
+                ]
+              ]
+            }
+          }
+        },
+        "HttpApiIntegrationRegister": {
+          "Type": "AWS::ApiGatewayV2::Integration",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "IntegrationType": "AWS_PROXY",
+            "IntegrationUri": {
+              "Fn::GetAtt": [
+                "RegisterLambdaFunction",
+                "Arn"
+              ]
+            },
+            "PayloadFormatVersion": "2.0",
+            "TimeoutInMillis": 30000
+          }
+        },
+        "HttpApiRoutePostAuthRegister": {
+          "Type": "AWS::ApiGatewayV2::Route",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "RouteKey": "POST /auth/register",
+            "Target": {
+              "Fn::Join": [
+                "/",
+                [
+                  "integrations",
+                  {
+                    "Ref": "HttpApiIntegrationRegister"
+                  }
+                ]
+              ]
+            }
+          },
+          "DependsOn": "HttpApiIntegrationRegister"
+        },
+        "SigninLambdaPermissionHttpApi": {
+          "Type": "AWS::Lambda::Permission",
+          "Properties": {
+            "FunctionName": {
+              "Fn::GetAtt": [
+                "SigninLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Action": "lambda:InvokeFunction",
+            "Principal": "apigateway.amazonaws.com",
+            "SourceArn": {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:",
+                  {
+                    "Ref": "AWS::Partition"
+                  },
+                  ":execute-api:",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ":",
+                  {
+                    "Ref": "AWS::AccountId"
+                  },
+                  ":",
+                  {
+                    "Ref": "HttpApi"
+                  },
+                  "/*"
+                ]
+              ]
+            }
+          }
+        },
+        "HttpApiIntegrationSignin": {
+          "Type": "AWS::ApiGatewayV2::Integration",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "IntegrationType": "AWS_PROXY",
+            "IntegrationUri": {
+              "Fn::GetAtt": [
+                "SigninLambdaFunction",
+                "Arn"
+              ]
+            },
+            "PayloadFormatVersion": "2.0",
+            "TimeoutInMillis": 30000
+          }
+        },
+        "HttpApiRoutePostAuthSignin": {
+          "Type": "AWS::ApiGatewayV2::Route",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "RouteKey": "POST /auth/signin",
+            "Target": {
+              "Fn::Join": [
+                "/",
+                [
+                  "integrations",
+                  {
+                    "Ref": "HttpApiIntegrationSignin"
+                  }
+                ]
+              ]
+            }
+          },
+          "DependsOn": "HttpApiIntegrationSignin"
         },
         "CreateTodoLambdaPermissionHttpApi": {
           "Type": "AWS::Lambda::Permission",
@@ -3991,6 +6340,28 @@
               }
             ]
           }
+        },
+        "UsersTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "Properties": {
+            "TableName": "Users",
+            "AttributeDefinitions": [
+              {
+                "AttributeName": "phone",
+                "AttributeType": "S"
+              }
+            ],
+            "KeySchema": [
+              {
+                "AttributeName": "phone",
+                "KeyType": "HASH"
+              }
+            ],
+            "ProvisionedThroughput": {
+              "ReadCapacityUnits": 1,
+              "WriteCapacityUnits": 1
+            }
+          }
         }
       },
       "Outputs": {
@@ -4003,16 +6374,79 @@
         "CustomAuthorizerLambdaFunctionQualifiedArn": {
           "Description": "Current Lambda function version",
           "Value": {
-            "Ref": "CustomAuthorizerLambdaVersionODfRHskM6mSmqlTyRrd6jMikICaMW5IlKtoZEnQE"
+            "Ref": "CustomAuthorizerLambdaVersionzdeDTDSabtFrlnkDp6xJaALri2uHW1ZMYisS06QW98"
           },
           "Export": {
             "Name": "sls-task-manager-service-dev-CustomAuthorizerLambdaFunctionQualifiedArn"
           }
         },
+        "DefineAuthChallengeLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "DefineAuthChallengeLambdaVersioncYIe3IHpu8KLE1J1648UOLF9S1De6iJy9KcSMm3xwI0"
+          },
+          "Export": {
+            "Name": "sls-task-manager-service-dev-DefineAuthChallengeLambdaFunctionQualifiedArn"
+          }
+        },
+        "CreateAuthChallengeLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "CreateAuthChallengeLambdaVersionLRrPDIaK0eD8kIztk7lJA6pntKAke5Nejbo6vanG0"
+          },
+          "Export": {
+            "Name": "sls-task-manager-service-dev-CreateAuthChallengeLambdaFunctionQualifiedArn"
+          }
+        },
+        "VerifyAuthChallengeLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "VerifyAuthChallengeLambdaVersionaSDDzIhnjlElJeNXmnUfitLYuzMq6IhW442EE3vOTHE"
+          },
+          "Export": {
+            "Name": "sls-task-manager-service-dev-VerifyAuthChallengeLambdaFunctionQualifiedArn"
+          }
+        },
+        "StartLoginLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "StartLoginLambdaVersionFERdTcBpQtjWjADHOY0cOWRZXrceYsvkaCdk6FXpfw"
+          },
+          "Export": {
+            "Name": "sls-task-manager-service-dev-StartLoginLambdaFunctionQualifiedArn"
+          }
+        },
+        "VerifyOtpLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "VerifyOtpLambdaVersionrsfXwukIDmErrgMUcCDssh4lKe0pxNtraRsVuIL0sxE"
+          },
+          "Export": {
+            "Name": "sls-task-manager-service-dev-VerifyOtpLambdaFunctionQualifiedArn"
+          }
+        },
+        "RegisterLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "RegisterLambdaVersionrPl8g68THEhWID640aaOjbN97M5KvMPvYAyX24w"
+          },
+          "Export": {
+            "Name": "sls-task-manager-service-dev-RegisterLambdaFunctionQualifiedArn"
+          }
+        },
+        "SigninLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "SigninLambdaVersion2PiVHJH6xaz3mS2QcSUCABqOiA8t9TL8eJoZGSqLu2M"
+          },
+          "Export": {
+            "Name": "sls-task-manager-service-dev-SigninLambdaFunctionQualifiedArn"
+          }
+        },
         "CreateTodoLambdaFunctionQualifiedArn": {
           "Description": "Current Lambda function version",
           "Value": {
-            "Ref": "CreateTodoLambdaVersionU0YuQ8gh9iu3qEmYb8EwjTWOOm8APBXCfunogKHg"
+            "Ref": "CreateTodoLambdaVersionMt2HW3KRB7axfHhl2QfBtLy5YvHDBbrXAXxzJ1Leupc"
           },
           "Export": {
             "Name": "sls-task-manager-service-dev-CreateTodoLambdaFunctionQualifiedArn"
@@ -4021,7 +6455,7 @@
         "ListTodosLambdaFunctionQualifiedArn": {
           "Description": "Current Lambda function version",
           "Value": {
-            "Ref": "ListTodosLambdaVersionChAHaUdO0iO26y0KJCGkQTOz5bvOER7Bl3p5QFnzk"
+            "Ref": "ListTodosLambdaVersionOreAZdH3ewmmduuwcqXpI8RiYiJeKBt7yZsPfAzC6c"
           },
           "Export": {
             "Name": "sls-task-manager-service-dev-ListTodosLambdaFunctionQualifiedArn"
@@ -4030,7 +6464,7 @@
         "GetTodoLambdaFunctionQualifiedArn": {
           "Description": "Current Lambda function version",
           "Value": {
-            "Ref": "GetTodoLambdaVersioneSmRYfW1tPy1Ftc9nAKUXBZfklXFkEfnAK1RMFBEIU"
+            "Ref": "GetTodoLambdaVersionbhLkT5qOIicpCkIgFBziiAw38IXzvqjD7pwDj97VrE"
           },
           "Export": {
             "Name": "sls-task-manager-service-dev-GetTodoLambdaFunctionQualifiedArn"
@@ -4039,7 +6473,7 @@
         "UpdateTodoLambdaFunctionQualifiedArn": {
           "Description": "Current Lambda function version",
           "Value": {
-            "Ref": "UpdateTodoLambdaVersionaHvXiE4SpheXnEE3Zhk2ZlIJYuDkMoxKYGGIWufic"
+            "Ref": "UpdateTodoLambdaVersion4XG4X2rzSsOqAozJKHgD06r0nCaYrQXjDbgjTcMmVeI"
           },
           "Export": {
             "Name": "sls-task-manager-service-dev-UpdateTodoLambdaFunctionQualifiedArn"
@@ -4048,7 +6482,7 @@
         "DeleteTodoLambdaFunctionQualifiedArn": {
           "Description": "Current Lambda function version",
           "Value": {
-            "Ref": "DeleteTodoLambdaVersionFpis6CnBW764xaZpl2p7vMMYP68kWeWbHjPjt6P6e8"
+            "Ref": "DeleteTodoLambdaVersionLK7nyy9zjWAXtwZemaM0c9MhspLs9fMCzgfhfp59n0"
           },
           "Export": {
             "Name": "sls-task-manager-service-dev-DeleteTodoLambdaFunctionQualifiedArn"
@@ -4057,7 +6491,7 @@
         "ListTodosByStatusLambdaFunctionQualifiedArn": {
           "Description": "Current Lambda function version",
           "Value": {
-            "Ref": "ListTodosByStatusLambdaVersionNYXiZflIQ66OmuY9yF7OBVCWfvlTAbbhGv6Cp3pNTs"
+            "Ref": "ListTodosByStatusLambdaVersionboZe3UcO7M2HYaF0DTnO8MhCP7xO9NMsMLEv4T4"
           },
           "Export": {
             "Name": "sls-task-manager-service-dev-ListTodosByStatusLambdaFunctionQualifiedArn"

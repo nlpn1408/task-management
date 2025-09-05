@@ -276,6 +276,7 @@ var getTodo2 = async (event) => {
 var updateTodo2 = async (event) => {
   try {
     const { id } = event.pathParameters || {};
+    const body = JSON.parse(event.body || "{}");
     const updatedTodo = await updateTodo(
       id,
       JSON.parse(event.body || "{}")

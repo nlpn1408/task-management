@@ -3,6 +3,7 @@ import { Link, Route, Routes } from "react-router-dom";
 import Confirm from "./components/pages/Confirm";
 import HomePage from "./components/pages/HomePage";
 import Login from "./components/pages/Login";
+import LoginWithPhonePage from "./components/pages/LoginWithPhonePage";
 import Signup from "./components/pages/Signup";
 import { useAuth } from "./contexts/AuthContext";
 import { TaskProvider } from "./contexts/TaskContext";
@@ -38,11 +39,12 @@ function App() {
         <Routes>
           <Route
             path="/"
-            element={token ? <HomePageWithProvider /> : <Login />}
+            element={token ? <HomePageWithProvider /> : <LoginWithPhonePage />}
           />
           <Route path="/signup" element={<Signup />} />
           <Route path="/confirm" element={<Confirm />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/login-with-phone" element={<LoginWithPhonePage />} />
         </Routes>
       </main>
     </div>

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/triggers/createAuthChallenge.ts"],
+  "sourcesContent": ["export const handler = async (event: any) => {\r\n  if (!event.response) {\r\n    event.response = {};\r\n  }\r\n\r\n  // Hardcode OTP l\u00E0 1111\r\n  const otp = \"111111\";\r\n  event.response.publicChallengeParameters = {};\r\n  event.response.privateChallengeParameters = { otp };\r\n  event.response.challengeMetadata = \"OTP\";\r\n\r\n  return event;\r\n};\r\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAO,IAAM,UAAU,OAAO,UAAe;AAC3C,MAAI,CAAC,MAAM,UAAU;AACnB,UAAM,WAAW,CAAC;AAAA,EACpB;AAGA,QAAM,MAAM;AACZ,QAAM,SAAS,4BAA4B,CAAC;AAC5C,QAAM,SAAS,6BAA6B,EAAE,IAAI;AAClD,QAAM,SAAS,oBAAoB;AAEnC,SAAO;AACT;",
+  "names": []
+}

@@ -5,6 +5,7 @@ import {
   CognitoUserAttribute,
   CognitoUserPool,
 } from "amazon-cognito-identity-js";
+import axios from "axios";
 
 const poolData = {
   UserPoolId: "ap-southeast-1_4Fe9nw33I", // USER_POOL_ID
@@ -58,6 +59,15 @@ export function signIn(username: string, password: string) {
       },
       onFailure: (err) => reject(err),
     });
+  });
+}
+
+export function signInWithPhone(phone: string) {
+  const endpoint = "http://localhost:3000"
+  // const endpoint = "https://iji77mm5aa.execute-api.ap-southeast-1.amazonaws.com"
+
+  return axios.post(`${endpoint}/auth/start-login`, {
+    phone: phone,
   });
 }
 

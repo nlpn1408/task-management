@@ -1,32 +1,15 @@
-import { useAuth } from "@/contexts/AuthContext";
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { signIn } from "../../services/authService";
+import { signInWithPhone } from "../../services/authService";
 
-export default function Login() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const navigate = useNavigate();
-
-  const { setToken } = useAuth();
-
-  const handleGoogleLogin = () => {
-    const domain =
-      "https://ap-southeast-14fe9nw33i.auth.ap-southeast-1.amazoncognito.com";
-    const clientId = "4na95skm65bele9e295ej6q7u5";
-    const redirectUri = "http://localhost:3001/";
-
-    const url = `${domain}/oauth2/authorize?identity_provider=Google&response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=openid+email+phone`;
-
-    window.location.href = url;
-  };
+export default function LoginWithPhonePage() {
+  const [phone, setPhone] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const accessToken = (await signIn(username, password)) as string;
-      setToken(accessToken);
-      navigate("/");
+      const res = await signInWithPhone(phone);
+      console.log("🚀 ~ handleSubmit ~ res:", res);
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       alert(err.message || JSON.stringify(err));
@@ -44,31 +27,16 @@ export default function Login() {
           {/* Username */}
           <div>
             <label className="block text-sm font-medium text-gray-600 mb-1">
-              Username
+              Phone
             </label>
             <input
               className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-              placeholder="Nhập username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Nhập phone"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
             />
           </div>
 
-          {/* Password */}
-          <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">
-              Password
-            </label>
-            <input
-              type="password"
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-              placeholder="Nhập password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-
-          {/* Normal login */}
           <button
             className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-semibold transition"
             type="submit"
@@ -86,7 +54,7 @@ export default function Login() {
         {/* Google login */}
         <button
           type="button"
-          onClick={handleGoogleLogin}
+          //   onClick={handleGoogleLogin}
           className="w-full flex items-center justify-center gap-2 border border-gray-300 py-2 rounded-lg font-semibold hover:bg-gray-50 transition"
         >
           <img

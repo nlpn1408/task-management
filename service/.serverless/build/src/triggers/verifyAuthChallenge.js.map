@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/triggers/verifyAuthChallenge.ts"],
+  "sourcesContent": ["export const handler = async (event: any) => {\r\n  if (!event.response) {\r\n    event.response = {};\r\n  }\r\n\r\n  // L\u1EA5y m\u00E3 OTP t\u1EEB y\u00EAu c\u1EA7u c\u1EE7a ng\u01B0\u1EDDi d\u00F9ng\r\n  const userEnteredOtp = event.request.challengeAnswer;\r\n\r\n  // L\u1EA5y m\u00E3 OTP t\u1EEB privateChallengeParameters (hardcoded 111111)\r\n  const expectedOtp = event?.request?.privateChallengeParameters?.otp || \"111111\";\r\n  \r\n  console.log(\"\uD83D\uDE80 ~ verifyAuthChallenge ~ userEnteredOtp:\", userEnteredOtp, \"expectedOtp:\", expectedOtp);\r\n  // Ki\u1EC3m tra m\u00E3 OTP\r\n  if (userEnteredOtp === expectedOtp) {\r\n    event.response.answerCorrect = true;\r\n  } else {\r\n    event.response.answerCorrect = false;\r\n  }\r\n\r\n  return event;\r\n};\r\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAO,IAAM,UAAU,OAAO,UAAe;AAC3C,MAAI,CAAC,MAAM,UAAU;AACnB,UAAM,WAAW,CAAC;AAAA,EACpB;AAGA,QAAM,iBAAiB,MAAM,QAAQ;AAGrC,QAAM,cAAc,OAAO,SAAS,4BAA4B,OAAO;AAEvE,UAAQ,IAAI,qDAA8C,gBAAgB,gBAAgB,WAAW;AAErG,MAAI,mBAAmB,aAAa;AAClC,UAAM,SAAS,gBAAgB;AAAA,EACjC,OAAO;AACL,UAAM,SAAS,gBAAgB;AAAA,EACjC;AAEA,SAAO;AACT;",
+  "names": []
+}

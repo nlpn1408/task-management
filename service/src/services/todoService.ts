@@ -16,7 +16,7 @@ import docClient from "../config/aws";
 import { Todo } from "../types/todo";
 import { generateUUID } from "../utils/helper";
 
-const TableName = "todos-table";
+export const TableName = "todos-table";
 
 export const createTodo = async (
   taskData: Omit<Todo, "id" | "createdAt" | "updatedAt">
